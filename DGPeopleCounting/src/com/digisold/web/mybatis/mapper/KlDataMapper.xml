@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.KlDataMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.KlData">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="device_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="enters" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="exits" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="start_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="end_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, device_id, enters, exits, start_date, end_date, create_date
+  </sql>
+ 
+  <select id="klByDate" resultType="com.digisold.web.manage.kldata.vo.KlDataListVo" parameterType="com.digisold.web.manage.kldata.model.KlDataListModel">
+  	select  
+  		DATE_FORMAT(t.start_date, #{dateformat}) as date,   		
+  		sum(t.enters) as enters 
+  		<if test="type == 1">
+  			, sum(t.exits) as exits
+  		</if> 
+  	from kl_data_#{tableIdx} t 
+		inner join device t2 on t.device_id = t2.id 
+		inner join store_device t3 on t3.device_id = t2.id
+		inner join store t4 on t4.id = t3.store_id
+		inner join passage t5 on t5.store_id = t4.id and t5.type = 1
+		inner join store_device_passage t6 on t6.passage_id = t5.id and t6.store_device_id = t3.id 
+	where t.start_date between #{startDate} and #{endDate}
+	<if test="passageId != null and passageId != ''">
+		and t5.id = #{passageId}
+	</if>
+	group by 1
+  </select>
+</mapper>

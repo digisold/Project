@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+   
+    <body>
+        <form id="listFrm" class="layui-form layui-form-pane">
+        	<blockquote class="layui-elem-quote list-blockquote">
+                <div class="clearfix">
+                    <div style="float:left;">节假日列表</div>
+                    <div style="float:right;">
+                    	<button type="button" class="layui-btn sm" v-on:click="doAdd()"><i class="layui-icon">&#xe654;</i>新增节假日</button>
+                    </div>
+                </div>
+            </blockquote>
+            <div class="layui-form-item" style="margin-bottom:0px;">
+                <div class="layui-inline">
+                    <label class="layui-form-label">年份</label>
+                    <div class="layui-input-block">
+                        <select name="year" lay-filter="year">
+                        	<option value="">~ 请选择 ~</option>
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                        </select>
+                    </div>
+                </div>
+            </div>      
+            <table id="listTab" class="layui-table"  style="margin-top:0px;">
+                <thead>
+                    <th width="150">节假日名称</th>
+                    <th width="300">假日时间</th>
+                    <th width="120">操作</th>
+                </thead>
+                <tbody>
+                	<tr v-for="item in list">
+                    	<td v-text="item.name"></td>
+                        <td v-text="item.startDate + ' 到 ' + item.endDate"></td>
+                        <td class="text-center">
+                        	<div class="layui-btn-group">
+                            	<button type="button" class="layui-btn" v-on:click="doEdit(item.id)"><i class="layui-icon">&#xe642;</i>编辑</button>
+								<button type="button" class="layui-btn" v-on:click="doDelete(item.id)"><i class="layui-icon">&#xe640;</i>删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="listPage"></div>
+        </form>
+	</body>
+    <div id="addPanel" style="display:none;">
+        <form id="addFrm" class="layui-form layui-form-pane">
+        	<input id="id" name="id" v-bind:value="holiday.id" type="hidden" />
+            <div class="layui-form-item">
+                <label class="layui-form-label">节假日名称</label>
+                <div class="layui-input-block">
+                	<input id="name" name="name" type="text" v-bind:value="holiday.name" class="layui-input" maxlength="20" />
+                </div>
+            </div>
+           <div id="cityFormItem" class="layui-form-item">
+            	<label class="layui-form-label">假日时间</label>
+            	<div class="layui-input-inline">
+                	<input id="sdate" name="sdate" v-bind:value="holiday.startDate" class="layui-input" readonly />
+                </div>
+                <div class="layui-form-mid layui-word-aux">到</div>
+                <div class="layui-input-inline">
+                	<input id="edate" name="edate" v-bind:value="holiday.endDate" class="layui-input" readonly />
+                </div>
+            </div>
+        </form>
+    </div>
+</html>
+
+<div th:include="/common/javascript :: loadJS"></div>
+<script type="text/javascript">
+	var module = "/holiday";
+	var layer, form;
+	
+	var holidayData = {
+		holiday: {} // 新增或修改数据
+	};
+	var editHolidayVue = new Vue({
+		el: '#addFrm'
+		,data: holidayData
+	});
+	
+	var passageListVue = new Vue({
+		el: '#passageListPanel'
+		,data: {
+			list: []
+		}
+	});
+	
+	var listVue = new Vue({
+		el: '#listFrm'
+		,data: {
+			list: []
+		}
+		,methods:{
+			doAdd: function(){
+				$("#addFrm")[0].reset();
+				$("#id").val("");
+				optPanel();
+			}
+			,doEdit: function(id){
+				$("#id").val(id);
+				optPanel();				
+			}
+			,doDelete: function(id){
+				var delIndx = layer.confirm(
+					"确定要删除吗？",
+					{btn:["确定", "取消"]},
+					function(){
+						layer.close(delIndx);
+						var param = {id: id};
+						dg.ajaxRequest(module + "/delete", param, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								list();
+							}				
+						});
+					}
+				);
+			}
+		}
+	});
+	
+	layui.use(['layer', 'form', 'laydate'], function(){
+		layer = layui.layer;
+		form = layui.form;
+		var laydate = layui.laydate;
+		laydate.render({
+			elem: '#sdate',
+			min: '2017-1-1',
+			theme: '#00ACD6'
+		});
+		laydate.render({
+			elem: '#edate',
+			min: '2017-1-1',
+			theme: '#00ACD6'
+		});
+		
+		// 联级事件
+		form.on("select(year)", function(obj){
+			list();
+		});
+		
+		// 加载列表
+		list();
+	});
+	
+	function optPanel() {
+		var pid = $("#id").val();
+		
+		var layerIdx = layer.open({
+			type: 1,
+			title: (pid != '' ? '编辑' : '新增') + '节假日',
+			area: ['580px', '250px'],
+			shade: 0.1,
+			btn: ['保存', '取消'],
+			btnAlign: 'c',
+			content: $("#addPanel"),
+			success:function(){
+				// 编辑数据
+				if(pid != '') {
+					var param = {id: pid};
+					dg.ajaxRequest(module + "/detail", param, function(res){
+						var holiday = res.data;
+						if(!isNotNull(holiday)) {
+							return;	
+						}
+						holidayData.holiday = holiday;
+					});
+				}
+			},
+			yes: function(index, layero) {
+				if($("#name").val() == "") {
+					layer.msg("节假日名称不能为空！");
+					$("#name").focus();
+					return;
+				}
+				if($("#sdate").val() == "") {
+					layer.msg("假日开始时间不能为空！");
+					$("#sdate").focus();
+					return;
+				}
+				if($("#edate").val() == "") {
+					layer.msg("假日结束时间不能为空！");
+					$("#edate").focus();
+					return;
+				}
+				var params = $("#addFrm").serializeArray();
+				dg.ajaxRequest(module + "/save", params, function(res){
+					var status = res.status;
+					if(isNotNull(status) && status == "10000") {
+						list();
+						layer.close(layerIdx);
+					}
+				});
+			}
+		});		
+	}
+	
+	// 加载页码和列表
+	function list() {
+		var params = $("#listFrm").serializeArray();
+		dg.ajaxRequest(module + "/list_count", params, function(res){
+			dg.listPage("listPage", res.records, res.pageSize, function(curPage){
+				listPage(curPage);
+			});
+		});
+		listPage(1);
+	}
+	
+	function listPage(curPage) {
+		curPage = (curPage==null || curPage == undefined) ? 1 : curPage;
+		var params = $("#listFrm").serializeArray();
+		params.push({"name" : "currentPage", "value" : curPage});
+		dg.ajaxRequest(module + "/list", params, function(res){
+			listVue.$data.list = res.data;
+		});	
+	}
+</script>

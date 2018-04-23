@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.StoreDeviceMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.StoreDevice">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="store_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="device_id" javaType="java.lang.String" jdbcType="CHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, store_id, device_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from store_device
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete t, t2 from store_device t 
+    	left outer join store_device_passage t2 on t.id = t2.store_device_id
+    	where t.id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.StoreDevice">
+    insert into store_device (id, store_id, device_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{storeId,jdbcType=CHAR}, #{deviceId,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.StoreDevice">
+    insert into store_device
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="storeId != null">
+        store_id,
+      </if>
+      <if test="deviceId != null">
+        device_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null">
+        #{storeId,jdbcType=CHAR},
+      </if>
+      <if test="deviceId != null">
+        #{deviceId,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.StoreDevice">
+    update store_device
+    <set>
+      <if test="storeId != null">
+        store_id = #{storeId,jdbcType=CHAR},
+      </if>
+      <if test="deviceId != null">
+        device_id = #{deviceId,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.StoreDevice">
+    update store_device
+    set store_id = #{storeId,jdbcType=CHAR},
+      device_id = #{deviceId,jdbcType=CHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="storeListByDevice" resultMap="BaseResultMap">
+  	select
+  	<include refid="Base_Column_List" />
+  	from store_device t
+  	where t.device_id = #{deviceId}
+  </select>
+  
+  <select id="countStoreDeviceList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.system.model.StoreDeviceListModel">
+  	select count(t.id) from store_device t
+  		inner join device t2 on t.device_id = t2.id
+  		inner join store t3 on t.store_id = t3.id
+  	<where>
+  		<if test="storeId != null and storeId != ''">
+	  		and t3.id = #{storeId}
+	  	</if>
+  	</where>
+  </select>
+  
+  <select id="storeDeviceList" resultType="com.digisold.web.manage.system.vo.StoreDeviceListVo" parameterType="com.digisold.web.manage.system.model.StoreDeviceListModel">
+  	select t.id, t3.id as storeId, t3.name as storeName, t2.type, t2.code, t2.ip,
+  	  DATE_FORMAT(t2.last_upload_date, '%Y-%m-%d  %H:%i') as lastUploadDate
+  	from store_device t
+  		inner join device t2 on t.device_id = t2.id
+  		inner join store t3 on t.store_id = t3.id
+  	<where>
+  		<if test="storeId != null and storeId != ''">
+	  		and t3.id = #{storeId}
+	  	</if>
+  	</where>
+  	order by t3.id, t2.code asc
+  	limit #{pageIndex}, #{pageSize}
+  </select>
+</mapper>

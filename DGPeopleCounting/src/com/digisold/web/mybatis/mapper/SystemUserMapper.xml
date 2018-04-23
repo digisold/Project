@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.SystemUserMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.SystemUser">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="password" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="role_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="status" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="use_start_date" javaType="java.util.Date" jdbcType="DATE" />
+      <arg column="use_end_date" javaType="java.util.Date" jdbcType="DATE" />
+      <arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="updater" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="update_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, username, password, role_id, status, use_start_date, use_end_date, creator, create_date, 
+    updater, update_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from system_user
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from system_user
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.SystemUser">
+    insert into system_user (id, username, password, 
+      role_id, status, use_start_date, 
+      use_end_date, creator, create_date, 
+      updater, update_date)
+    values (#{id,jdbcType=CHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{roleId,jdbcType=CHAR}, #{status,jdbcType=INTEGER}, #{useStartDate,jdbcType=DATE}, 
+      #{useEndDate,jdbcType=DATE}, #{creator,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updater,jdbcType=CHAR}, #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.SystemUser">
+    insert into system_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="roleId != null">
+        role_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="useStartDate != null">
+        use_start_date,
+      </if>
+      <if test="useEndDate != null">
+        use_end_date,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updater != null">
+        updater,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="roleId != null">
+        #{roleId,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="useStartDate != null">
+        #{useStartDate,jdbcType=DATE},
+      </if>
+      <if test="useEndDate != null">
+        #{useEndDate,jdbcType=DATE},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.SystemUser">
+    update system_user
+    <set>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null and password != ''">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="roleId != null">
+        role_id = #{roleId,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="useStartDate != null">
+        use_start_date = #{useStartDate,jdbcType=DATE},
+      </if>
+      <if test="useEndDate != null">
+        use_end_date = #{useEndDate,jdbcType=DATE},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        updater = #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.SystemUser">
+    update system_user
+    set username = #{username,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      role_id = #{roleId,jdbcType=CHAR},
+      status = #{status,jdbcType=INTEGER},
+      use_start_date = #{useStartDate,jdbcType=DATE},
+      use_end_date = #{useEndDate,jdbcType=DATE},
+      creator = #{creator,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      updater = #{updater,jdbcType=CHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  
+  <select id="getUserByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
+  	select
+  	<include refid="Base_Column_List" />
+  	from system_user t 	
+  	where t.username = #{username}
+  </select>
+  
+  <select id="userLogin" resultMap="BaseResultMap">
+  	select
+  	<include refid="Base_Column_List" />
+  	from system_user t 	
+  	where LOWER(t.username) = #{username} and t.password = #{password}
+  </select>
+  
+  <select id="checkUsername" parameterType="com.digisold.web.mybatis.entity.SystemUser" resultType="java.lang.Long">
+	select count(t.id) from system_user t
+	<where>
+		<if test="id != null and id != ''">
+			and t.username != ( select s.username from system_user s where s.id = #{id} )
+		</if>
+		<if test="username != null and username != ''">
+			and t.username = #{username}
+		</if>
+	</where>
+</select>
+
+ <select id="countUserList" resultType="java.lang.Long">
+ 	<![CDATA[
+ 	 select count(t.id) from system_user t where t.username <> 'admin'
+ 	]]> 
+ </select>
+
+ <select id="userList" resultType="com.digisold.web.manage.system.vo.UserListVo" parameterType="com.digisold.web.manage.system.model.UserListModel">
+ 	 <![CDATA[
+ 	 select
+ 	 	t.id, t.username, t2.name as roleName, t.status, 
+ 	 	DATE_FORMAT(t.use_start_date, '%Y-%m-%d') as useStartDate, DATE_FORMAT(t.use_end_date, '%Y-%m-%d') as useEndDate
+ 	 from system_user t left outer join role t2 on t.role_id = t2.id
+ 	 where t.username <> 'admin'
+ 	 order by t.create_date asc
+ 	 limit #{pageIndex}, #{pageSize}
+ 	 ]]>
+  </select>
+  
+  <update id="resetPassage">
+  	update system_user set password = #{password} where id = #{userId}
+  </update>
+</mapper>

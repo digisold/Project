@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.HolidayMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.Holiday">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="start_date" javaType="java.util.Date" jdbcType="DATE" />
+      <arg column="end_date" javaType="java.util.Date" jdbcType="DATE" />
+      <arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="updater" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="update_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, start_date, end_date, creator, create_date, updater, update_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" 
+  	resultType="com.digisold.web.manage.system.vo.HolidayListVo">
+    select 
+   	 t.id, t.name, DATE_FORMAT(t.start_date, '%Y-%m-%d') as startDate, DATE_FORMAT(t.end_date, '%Y-%m-%d') as endDate
+    from holiday t
+    where t.id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from holiday
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.Holiday">
+    insert into holiday (id, name, start_date, 
+      end_date, creator, create_date, 
+      updater, update_date)
+    values (#{id,jdbcType=CHAR}, #{name,jdbcType=VARCHAR}, #{startDate,jdbcType=DATE}, 
+      #{endDate,jdbcType=DATE}, #{creator,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updater,jdbcType=CHAR}, #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.Holiday">
+    insert into holiday
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="startDate != null">
+        start_date,
+      </if>
+      <if test="endDate != null">
+        end_date,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updater != null">
+        updater,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null">
+        #{endDate,jdbcType=DATE},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.Holiday">
+    update holiday
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        start_date = #{startDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null">
+        end_date = #{endDate,jdbcType=DATE},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        updater = #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.Holiday">
+    update holiday
+    set name = #{name,jdbcType=VARCHAR},
+      start_date = #{startDate,jdbcType=DATE},
+      end_date = #{endDate,jdbcType=DATE},
+      creator = #{creator,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      updater = #{updater,jdbcType=CHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  
+  <select id="countHolidayList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.system.model.HolidayListModel">
+  	select count(t.id) from holiday t
+  	<where>
+  		<if test="year != null and year > 0">
+  			and DATE_FORMAT(t.start_date, '%Y') = #{year}
+  		</if>
+  	</where>
+  </select>
+  
+  <select id="holidayList" resultType="com.digisold.web.manage.system.vo.HolidayListVo"  parameterType="com.digisold.web.manage.system.model.HolidayListModel">
+  	select 
+  		t.id, t.name, DATE_FORMAT(t.start_date, '%Y-%m-%d') as startDate, DATE_FORMAT(t.end_date, '%Y-%m-%d') as endDate
+  	from holiday t
+  	<where>
+  		<if test="year != null and year > 0">
+  			and DATE_FORMAT(t.start_date, '%Y') = #{year}
+  		</if>
+  	</where>
+  	order by t.start_date asc
+  	limit #{pageIndex}, #{pageSize}
+  </select>
+</mapper>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.StoreDevicePassageMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.StoreDevicePassage">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="store_device_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="passage_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="status" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="data_reverse" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, store_device_id, passage_id, status, data_reverse
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from store_device_passage
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from store_device_passage
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.StoreDevicePassage">
+    insert into store_device_passage (id, store_device_id, passage_id, 
+      status, data_reverse)
+    values (#{id,jdbcType=INTEGER}, #{storeDeviceId,jdbcType=INTEGER}, #{passageId,jdbcType=CHAR}, 
+      #{status,jdbcType=INTEGER}, #{dataReverse,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.StoreDevicePassage">
+    insert into store_device_passage
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="storeDeviceId != null">
+        store_device_id,
+      </if>
+      <if test="passageId != null">
+        passage_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="dataReverse != null">
+        data_reverse,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="storeDeviceId != null">
+        #{storeDeviceId,jdbcType=INTEGER},
+      </if>
+      <if test="passageId != null">
+        #{passageId,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="dataReverse != null">
+        #{dataReverse,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.StoreDevicePassage">
+    update store_device_passage
+    <set>
+      <if test="storeDeviceId != null">
+        store_device_id = #{storeDeviceId,jdbcType=INTEGER},
+      </if>
+      <if test="passageId != null">
+        passage_id = #{passageId,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="dataReverse != null">
+        data_reverse = #{dataReverse,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.StoreDevicePassage">
+    update store_device_passage
+    set store_device_id = #{storeDeviceId,jdbcType=INTEGER},
+      passage_id = #{passageId,jdbcType=CHAR},
+      status = #{status,jdbcType=INTEGER},
+      data_reverse = #{dataReverse,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="selectByStoreDeviceId" resultMap="BaseResultMap">
+  	select
+  		<include refid="Base_Column_List" />
+  	from store_device_passage t
+  	where t.store_device_id = #{storeDeviceId}	
+  </select>
+  
+  <select id="countPassageDeviceList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.system.model.PassageDeviceListModel">
+  	select count(t.id) from store_device_passage t
+	  inner join store_device t2 on t.store_device_id = t2.id
+	  inner join device t3 on t2.device_id = t3.id
+	  inner join store t4 on t2.store_id = t4.id
+	  inner join passage t5 on t.passage_id = t5.id
+  	<where>
+  		<if test="storeId != null and storeId != ''">
+	  		and t4.id = #{storeId}
+	  	</if>
+	  	<if test="passageId != null and passageId != ''">
+	  		and t5.id = #{passageId}
+	  	</if>
+  	</where>
+  </select>
+  
+  <select id="passageDeviceList" resultType="com.digisold.web.manage.system.vo.PassageDeviceListVo" parameterType="com.digisold.web.manage.system.model.PassageDeviceListModel">
+  	select t.id, t4.name as storeName, t5.type, t5.name, t3.code, t3.ip, t.status, t.data_reverse,
+		DATE_FORMAT(t3.last_upload_date, '%Y-%m-%d  %H:%i') as lastUploadDate
+	from store_device_passage t
+	  inner join store_device t2 on t.store_device_id = t2.id
+	  inner join device t3 on t2.device_id = t3.id
+	  inner join store t4 on t2.store_id = t4.id
+	  inner join passage t5 on t.passage_id = t5.id
+  	<where>
+  		<if test="storeId != null and storeId != ''">
+	  		and t4.id = #{storeId}
+	  	</if>
+	  	<if test="passageId != null and passageId != ''">
+	  		and t5.id = #{passageId}
+	  	</if>
+  	</where>
+  	order by t4.id, t5.id asc
+  	limit #{pageIndex}, #{pageSize}
+  </select>
+</mapper>

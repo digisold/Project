@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8" />
+        <title>DIGISOLD智能客流分析平台</title>
+        <link type="text/css" rel="stylesheet" href="css/style.css" />
+        <link type="text/css" rel="stylesheet" href="layui/css/layui.css" />
+        <link rel="stylesheet" href="kit-admin/css/app.css" media="all" />
+		<link rel="shortcut icon" href="images/favicon.ico" />
+        <style type="text/css">
+		<!--
+		.left_0 {left:0px;}
+		html, body {padding:0px;}
+		-->
+		</style>
+    </head>
+
+    <body class="kit-theme">
+    	<div class="layui-layout layui-layout-admin kit-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo"><img src="images/logo.png" /></div>
+            <div class="layui-logo kit-logo-mobile"><img src="images/favicon.ico" /></div>
+            <ul class="layui-nav layui-layout-left kit-nav">
+                <li class="layui-nav-item" th:each="rootMenu : ${rootMenuList}">
+                	<a href="javascript:void(0);" th:if="${rootMenu.id == 1}" th:data-title="${rootMenu.name}"
+                    	th:data-url="${rootMenu.url}" th:data-icon="${rootMenu.menuIcon}" kit-target data-id="-1">
+                    	<i class="dg-icon" th:utext="${rootMenu.menuIcon}"></i>&nbsp;<span th:text="${rootMenu.name}"></span>
+                    </a>
+                    <a href="javascript:void(0);" th:onclick="'loadChildMenu(' + ${rootMenu.id} + ')'" th:if="${rootMenu.id > 1}">
+                    	<i class="dg-icon" th:utext="${rootMenu.menuIcon}"></i>&nbsp;<span th:text="${rootMenu.name}"></span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="layui-nav layui-layout-right kit-nav">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <i class="layui-icon">&#xe63f;</i> 皮肤
+                    </a>
+                    <dl class="layui-nav-child skin">
+                        <dd><a href="javascript:;" data-skin="default" style="color:#393D49;"><i class="layui-icon">&#xe658;</i> 默认</a></dd>
+                        <dd><a href="javascript:;" data-skin="orange" style="color:#ff6700;"><i class="layui-icon">&#xe658;</i> 橘子橙</a></dd>
+                        <dd><a href="javascript:;" data-skin="green" style="color:#00a65a;"><i class="layui-icon">&#xe658;</i> 原谅绿</a></dd>
+                        <dd><a href="javascript:;" data-skin="pink" style="color:#FA6086;"><i class="layui-icon">&#xe658;</i> 少女粉</a></dd>
+                        <dd><a href="javascript:;" data-skin="blue.1" style="color:#00c0ef;"><i class="layui-icon">&#xe658;</i> 天空蓝</a></dd>
+                        <dd><a href="javascript:;" data-skin="red" style="color:#dd4b39;"><i class="layui-icon">&#xe658;</i> 枫叶红</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img src="http://m.zhengjinfan.cn/images/0.jpg" class="layui-nav-img"> Van
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;" kit-target data-options="{url:'basic.html',icon:'&#xe658;',title:'基本资料',id:'966'}"><span>基本资料</span></a></dd>
+                        <dd><a href="javascript:;">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                	<a href="javascript:void(0);" onclick="return logout()"><i class="fa fa-sign-out" aria-hidden="true"></i> 注销</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="layui-side layui-bg-black kit-side">
+            <div class="layui-side-scroll">
+                <div class="kit-side-fold" title="侧边伸缩"><i class="dg-icon" style="font-size:16pt; color:#FFF">&#xe647;</i></div>
+                <ul id="left_menu_nav" class="layui-nav layui-nav-tree" lay-filter="kitNavbar" kit-navbar>
+                    <li th:pmenu-id="${pmenu.child_menu.parentMenuId}" class="layui-nav-item layui-nav-itemed" th:each="pmenu : ${childMenuList}">
+                        <a class="" href="javascript:void(0);"><i class="dg-icon" th:utext="${pmenu.child_menu.menuIcon}"></i>&nbsp;
+                        	<span th:text="${pmenu.child_menu.name}"></span>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd th:each="ppmenu : ${pmenu.sub_child_menulist}">
+                                <a href="javascript:void(0);" th:data-url="${ppmenu.url}" th:data-icon="${ppmenu.menuIcon}" th:data-title="${ppmenu.name}" 
+                                	kit-target th:data-id="${ppmenu.id}"><i class="dg-icon" th:utext="${ppmenu.menuIcon}">
+                                   </i>&nbsp;<span th:text="${ppmenu.name}"></span>
+                                </a>
+                            </dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="layui-body" id="container">
+            <!-- 内容主体区域 -->
+            <div style="padding: 15px;"><i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop">&#xe63e;</i> 请稍等...</div>
+        </div>
+
+        <div class="layui-footer">
+            <!-- 底部固定区域 -->
+            <a href="http://www.digisold.com" target="_blank">&copy;2018 帝之售 , Inc. All rights reserved.</a>
+        </div>
+    </div>
+	</body>
+    
+    <div id="updatePwd" style="display:none; padding:20px;">
+    	<form id="updatePwdFrm" class="layui-form" action="#">
+        	<div class="layui-form-item">
+            	<label class="layui-form-label">原密码：</label>
+                <div class="layui-input-block"><input id="oldPwd" name="oldPwd" type="password" maxlength="50" class="layui-input" /></div>
+            </div>
+            <div class="layui-form-item">
+            	<label class="layui-form-label">新密码：</label>
+                <div class="layui-input-block"><input id="newPwd" type="password" maxlength="50" class="layui-input" /></div>
+            </div>
+            <div class="layui-form-item">
+            	<label class="layui-form-label">确认密码：</label>
+                <div class="layui-input-block"><input id="confirmPwd" name="confirmPwd" type="password" maxlength="50" class="layui-input" /></div>
+            </div>
+        </form>
+    </div>
+</html>
+
+<script type="text/javascript" src="javascript/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="layui/layui.js"></script>
+<script type="text/javascript" src="javascript/digisold.js"></script>
+<script type="text/javascript">
+	var message;
+	layui.config({
+		base: 'kit-admin/js/',
+		version: '1.0.1'
+	}).use(['app', 'message'], function() {
+		var app = layui.app;
+		//主入口
+		app.set({
+			type: 'iframe'
+		}).init();
+	});
+	
+	// 登出系统
+	function logout() {
+		var logoutCrm = layer.confirm(
+			"确定要退出系统吗？",
+			{btn:["确定", "取消"]},
+			function(){
+				layer.close(logoutCrm);
+				window.location.href = getBasePath() + "/logout";
+			}
+		);
+	}
+	
+	function loadChildMenu(menu_id) {
+		var child_menus = $("#left_menu_nav .layui-nav-item");
+		for(var i = 0; i < child_menus.length; i++) {
+			var cmenu = child_menus.eq(i);
+			cmenu.css("display",  (cmenu.attr("pmenu-id") == menu_id ? "block" : "none"));
+		}
+	}
+</script>

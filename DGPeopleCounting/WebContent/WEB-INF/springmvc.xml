@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+
+	<!-- 开启注解模式驱动 -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+
+	<!-- 扫包 -->
+	<context:component-scan base-package="com.digisold.*"></context:component-scan>
+
+	<!-- 静态资源过滤 -->
+	<mvc:resources location="/WEB-INF/templates/resources/css/" mapping="/css/**" />
+	<mvc:resources location="/WEB-INF/templates/resources/images/" mapping="/images/**" />
+	<mvc:resources location="/WEB-INF/templates/resources/javascript/" mapping="/javascript/**" />
+	<mvc:resources location="/WEB-INF/templates/resources/layui/" mapping="/layui/**" />
+	<mvc:resources location="/WEB-INF/templates/resources/kit-admin/" mapping="/kit-admin/**" />
+	<mvc:resources location="/WEB-INF/templates/resources/upload/" mapping="/upload/**" />
+	<mvc:resources location="/WEB-INF/templates/resources/download/" mapping="/download/**" />
+
+	<!-- 模板 -->
+	<bean id="templateResolver"
+		class="org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver">
+		<property name="prefix" value="/WEB-INF/templates/" />
+		<property name="suffix" value=".html" />
+		<property name="templateMode" value="HTML5" />
+		<!-- 缓存 -->
+		<property name="cacheable" value="false" />
+	</bean>
+
+	<bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">
+		<property name="templateResolver" ref="templateResolver" />
+	</bean>
+	<bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
+		<property name="templateEngine" ref="templateEngine" />
+		<property name="order" value="1" />
+		<property name="characterEncoding" value="UTF-8" />
+	</bean>
+	<!-- END -->
+
+	<!-- 拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/**/*.css" />
+			<mvc:exclude-mapping path="/**/*.js" />
+			<mvc:exclude-mapping path="/**/*.png" />
+			<mvc:exclude-mapping path="/**/*.gif" />
+			<mvc:exclude-mapping path="/**/*.jpg" />
+			<mvc:exclude-mapping path="/**/*.jpeg" />
+			<mvc:exclude-mapping path="/**/*.ico" />
+			<mvc:exclude-mapping path="/**/*.mp4" />
+			<mvc:exclude-mapping path="/**/*.ttf" />
+			<mvc:exclude-mapping path="/**/*.woff" />
+			<mvc:exclude-mapping path="/**/*.svg" />
+			<mvc:exclude-mapping path="/**/*.eot" />
+			<bean class="com.digisold.core.springmvc.SpringmvcInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+	<!-- @ResponseBody字符集 -->
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/html;charset=utf-8</value>
+						<value>text/plain;charset=utf-8</value>
+						<value>application/json;charset=utf-8</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<!-- 上传 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"></property>
+		<!--max size: 100M -->
+		<property name="maxUploadSize" value="104857600"></property>
+		<property name="maxInMemorySize" value="40960"></property>
+	</bean>
+</beans>

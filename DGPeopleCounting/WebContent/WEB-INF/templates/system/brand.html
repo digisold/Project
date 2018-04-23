@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+   
+    <body>
+        <blockquote class="layui-elem-quote list-blockquote">
+        	<div class="clearfix">
+                <div style="float:left;">品牌列表</div>
+                <div style="float:right;"><button id="addBtn" type="button" class="layui-btn sm"><i class="layui-icon">&#xe654;</i>新增品牌</button></div>
+            </div>
+        </blockquote>
+        <div id="list" class="clearfix layui-hide">
+        	<div class="brand-box" v-for="item in list">
+            	<div class="img" v-bind:style="{backgroundImage: 'url(..' + item.logo + ')'}">
+                	<div class="title">{{item.name}}</div>
+                </div>
+                <div class="layui-btn-group" style="width:100%; margin:0px;">
+                    <button type="button" class="layui-btn layui-btn-sm" title="编辑" v-on:click="doEdit(item.id)" style="width:50%;">
+                        <i class="layui-icon">&#xe642;</i>
+                    </button>
+                    <button type="button" class="layui-btn layui-btn-sm" title="删除" v-on:click="doDelete(item.id, item.logo)"
+                        style="width:50%;"><i class="layui-icon">&#xe640;</i></button>
+                </div>
+            </div>
+        </div>   
+	</body>
+    <div id="addPanel" style="display:none;">
+        <form id="addFrm" class="layui-form layui-form-pane" action="#" enctype="multipart/form-data" method="post">
+        	<input id="id" name="id" type="hidden" />
+            <div class="layui-form-item">
+                <label class="layui-form-label">品牌名称：</label>
+                <div class="layui-input-block"><input id="name" name="name" type="text" class="layui-input" maxlength="20" /></div>
+            </div>
+            <div class="layui-form-item" pane>
+            	<label class="layui-form-label">上传logo：</label>
+                <div class="layui-input-block">
+                	<input id="brandLogo" name="brandLogo" type="file" accept="image/*" />
+                    <div class="layui-form-mid layui-word-aux">只支持上传JPEG, JPG, PNG, GIF格式的图片.</div>
+                </div>
+            </div>
+        </form>
+    </div>
+</html>
+<style type="text/css">
+<!--
+	.brand-box {float:left; width:19%; height:185px; margin-right:1%; margin-bottom:10px; }
+	.brand-box .img{background-repeat:no-repeat; background-size:cover; height:150px;}
+	.brand-box .title{filter:alpha(opacity=80); -moz-opacity:0.8; opacity:0.8; -webkit-opacity:0.8; position:relative; bottom:-121px; padding:5px;
+			   background-color:#1F1F1F; text-align:center; color:#FFF;}
+-->
+</style>
+
+<div th:include="/common/javascript :: loadJS"></div>
+<script type="text/javascript" src="../javascript/jquery.form.js"></script>
+<script type="text/javascript">
+	var module = "/brand";
+	
+	var listData = {
+		list:[]
+	};
+	var listVue = new Vue({
+		el: '#list'
+		,data: listData
+		,methods: {
+			doEdit: function(bid){
+				var param = {id: bid};
+				dg.ajaxRequest(module + "/detail", param, function(res){
+					var brand = res.data;
+					if(!isNotNull(brand)) {
+						return;	
+					}
+					$("#id").val(brand.id);
+					$("#name").val(brand.name);
+					optPanel();
+				});	
+			},
+			doDelete: function(bid, logo){
+				var delIndx = layer.confirm(
+					"确定要删除吗？",
+					{btn:["确定", "取消"]},
+					function(){
+						layer.close(delIndx);
+						var param = {id: bid, filename: logo};
+						dg.ajaxRequest(module + "/delete", param, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								list();
+							}				
+						});
+					}
+				);
+			}
+		}
+	});
+	
+	var layer;
+	layui.use(['layer'], function(){
+		layer = layui.layer;
+		$("#addBtn").bind("click",function(){
+			$("#addFrm")[0].reset();
+			$("#id").val("");
+			optPanel();
+		});
+		
+		list();
+	});
+	
+	
+	function optPanel() {
+		$("input[name=brandLogo]").val("");
+		var layerIdx = layer.open({
+			type: 1,
+			title: ($('#id').val() != '' ? '编辑' : '新增') + '品牌',
+			area: ['500px', '300px'],
+			shade: 0.1,
+			btn: ['保存', '取消'],
+			btnAlign: 'c',
+			content: $("#addPanel"),
+			yes: function(index, layero) {
+				if($("#name").val() == "") {
+					layer.msg("品牌名称不能为空！");
+					$("#name").focus();
+					return;	
+				}
+				var logo = $("input[name=brandLogo]");
+				if( $("#id").val() == "" && logo.val() == "") {
+					layer.msg("请上传品牌logo！");
+					logo.focus();
+					return;	
+				}
+				if(!checkFileFormat(logo, "image")) {
+					layer.msg("logo文件格式错误！");
+					logo.focus();
+					logo.val("");
+					return;	
+				}
+				dg.formAjaxRequest($("#addFrm"), module + "/save", function(res){
+					var status = res.status;
+					if(isNotNull(status) && status == "10000") {
+						list();
+						layer.close(layerIdx);
+					}
+				});
+			}
+		});		
+	}
+	
+	function list() {
+		dg.ajaxRequest(module + "/list", null, function(res){
+			listData.list = res.data;
+			if(res.data.length > 0) {
+				if($("#list").hasClass("layui-hide")) {
+					$("#list").removeClass("layui-hide");
+				}
+			} else {
+				$("#list").addClass("layui-hide");	
+			}
+		});	
+	}
+</script>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.RoleMapper">
+	<resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.Role">
+		<constructor>
+			<idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+			<arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+			<arg column="sys_menus" javaType="java.lang.String" jdbcType="VARCHAR" />
+			<arg column="description" javaType="java.lang.String" jdbcType="VARCHAR" />
+			<arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
+			<arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+			<arg column="updater" javaType="java.lang.String" jdbcType="CHAR" />
+			<arg column="update_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		</constructor>
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, name, sys_menus, description, creator, create_date, updater,
+		update_date
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from role
+		where id = #{id,jdbcType=CHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from role
+		where id = #{id,jdbcType=CHAR}
+	</delete>
+	<insert id="insert" parameterType="com.digisold.web.mybatis.entity.Role">
+		insert into role (id, name, sys_menus,
+		description, creator, create_date,
+		updater, update_date)
+		values (#{id,jdbcType=CHAR}, #{name,jdbcType=VARCHAR},
+		#{sysMenus,jdbcType=VARCHAR},
+		#{description,jdbcType=VARCHAR}, #{creator,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP},
+		#{updater,jdbcType=CHAR}, #{updateDate,jdbcType=TIMESTAMP})
+	</insert>
+	<insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.Role">
+		insert into role
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="sysMenus != null">
+				sys_menus,
+			</if>
+			<if test="description != null">
+				description,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="createDate != null">
+				create_date,
+			</if>
+			<if test="updater != null">
+				updater,
+			</if>
+			<if test="updateDate != null">
+				update_date,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=CHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="sysMenus != null">
+				#{sysMenus,jdbcType=VARCHAR},
+			</if>
+			<if test="description != null">
+				#{description,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=CHAR},
+			</if>
+			<if test="createDate != null">
+				#{createDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updater != null">
+				#{updater,jdbcType=CHAR},
+			</if>
+			<if test="updateDate != null">
+				#{updateDate,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.Role">
+		update role
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="sysMenus != null">
+				sys_menus = #{sysMenus,jdbcType=VARCHAR},
+			</if>
+			<if test="description != null">
+				description = #{description,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=CHAR},
+			</if>
+			<if test="createDate != null">
+				create_date = #{createDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updater != null">
+				updater = #{updater,jdbcType=CHAR},
+			</if>
+			<if test="updateDate != null">
+				update_date = #{updateDate,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=CHAR}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.Role">
+		update role
+		set name = #{name,jdbcType=VARCHAR},
+		sys_menus = #{sysMenus,jdbcType=VARCHAR},
+		description = #{description,jdbcType=VARCHAR},
+		creator = #{creator,jdbcType=CHAR},
+		create_date = #{createDate,jdbcType=TIMESTAMP},
+		updater = #{updater,jdbcType=CHAR},
+		update_date = #{updateDate,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=CHAR}
+	</update>
+	
+	<select id="getRoleByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from role t where t.name = #{name}
+	</select>
+	
+	<select id="checkRoleName" parameterType="com.digisold.web.mybatis.entity.Role" resultType="java.lang.Long">
+		select count(t.id) from role t
+		<where>
+			<if test="id != null and id != ''">
+				and t.name != ( select r.name from role r where r.id = #{id} )
+			</if>
+			<if test="name != null and name != ''">
+				and t.name = #{name}
+			</if>
+		</where>
+	</select>
+	
+	<select id="countRoleList" resultType="java.lang.Long">
+  	 select count(t.id) from role t
+ 	</select>
+	
+	<select id="roleList" resultType="com.digisold.web.manage.system.vo.RoleListVo" parameterType="com.digisold.web.manage.system.model.RoleListModel">
+  	 select
+  		<include refid="Base_Column_List" />
+  	 from role t
+  	 limit #{pageIndex}, #{pageSize}
+   </select>
+   
+   <select id="roleItems" resultMap="BaseResultMap">
+   	select
+   	<include refid="Base_Column_List" />
+   	from role t
+   	order by t.name asc
+   </select>
+</mapper>

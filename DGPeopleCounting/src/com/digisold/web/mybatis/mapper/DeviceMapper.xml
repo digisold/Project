@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.DeviceMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.Device">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="type" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="ip" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="mac_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="last_upload_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="updater" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="update_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type, code, ip, mac_address, last_upload_date, creator, create_date, 
+    updater, update_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from device
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete t, t2, t3 from device t 
+    	left outer join store_device t2 on t.id = t2.device_id 
+		left outer join store_device_passage t3 on t3.store_device_id = t2.id
+	where t.id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.Device">
+    insert into device (id, type, 
+      code, ip, mac_address, 
+      last_upload_date, creator, 
+      create_date, updater, update_date
+      )
+    values (#{id,jdbcType=CHAR}, #{type,jdbcType=INTEGER}, 
+      #{code,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{macAddress,jdbcType=VARCHAR}, 
+      #{lastUploadDate,jdbcType=TIMESTAMP}, #{creator,jdbcType=CHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{updater,jdbcType=CHAR}, #{updateDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.Device">
+    insert into device
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="ip != null">
+        ip,
+      </if>
+      <if test="macAddress != null">
+        mac_address,
+      </if>
+      <if test="lastUploadDate != null">
+        last_upload_date,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updater != null">
+        updater,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null">
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="macAddress != null">
+        #{macAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="lastUploadDate != null">
+        #{lastUploadDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.Device">
+    update device
+    <set>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null">
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="macAddress != null">
+        mac_address = #{macAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="lastUploadDate != null">
+        last_upload_date = #{lastUploadDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        updater = #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.Device">
+    update device
+    set type = #{type,jdbcType=INTEGER},
+      code = #{code,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      mac_address = #{macAddress,jdbcType=VARCHAR},
+      last_upload_date = #{lastUploadDate,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      updater = #{updater,jdbcType=CHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  
+  <select id="checkCodeIsExists" resultType="java.lang.Long" parameterType="com.digisold.web.mybatis.entity.Device">
+  	select count(t.id) from device t
+  	<where>
+	  	<if test="id != null and id != ''">
+	  	<![CDATA[
+	  		and t.code <> (select d.code from device d where d.id = #{id})
+	  	]]>	
+	  	</if>
+	  	<if test="code != null and code != ''">
+	  		and t.code = #{code}
+	  	</if>
+  	</where>
+  </select>
+  
+  <select id="countDeviceList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.system.model.DeviceListModel">
+  	select count(t.id) from device t
+  	<where>
+  		<if test="code != null and code != ''">
+	  		and t.code like CONCAT('%', #{code} ,'%')
+	  	</if>
+  	</where>
+  </select>
+  
+  <select id="deviceList" resultType="com.digisold.web.manage.system.vo.DeviceListVo" parameterType="com.digisold.web.manage.system.model.DeviceListModel">
+  	select t.id, t.type, t.code, t.ip,
+  	  DATE_FORMAT(t.last_upload_date, '%Y-%m-%d  %H:%i') as lastUploadDate,
+  	  (select count(sd.id) from store_device sd where sd.device_id = t.id) as stores
+  	from device t
+  	<where>
+  		<if test="code != null and code != ''">
+	  		and t.code like CONCAT('%', #{code} ,'%')
+	  	</if>
+  	</where>
+  	order by t.code, t.create_date asc
+  	limit #{pageIndex}, #{pageSize}
+  </select>
+</mapper>

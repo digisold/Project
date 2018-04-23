@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+    
+    <body>
+        <form id="listFrm" class="layui-form layui-form-pane">
+        	<input name="type" type="hidden" value="1" />
+        	<div class="layui-form-item" style="margin-bottom:5px;">
+            	<div class="layui-inline">
+                    <label class="layui-form-label">案场名称</label>
+                    <div class="layui-input-block">
+                        <select id="storeId" name="storeId" lay-filter="store" class="storeItems"></select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">时间</label>
+                    <div class="layui-input-block">
+                        <input id="sdate" name="sdate" type="text" th:value="${curDate}" class="layui-input" readonly maxlength="10" />
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button id="searchBtn" type="button" class="layui-btn" onclick="initChart()"><i class="layui-icon">&#xe615;</i>查询</button>
+                </div>
+            </div>
+        </form>
+        <!-- data total -->
+        <div class="rpt-box">
+        	<div class="box blue">
+            	<div class="clearfix">
+                	<div style="float:left"><i class="dg-icon">&#xe629;</i></div>
+                    <div style="float:right; text-align:right;">
+                    	<div class="data" id="totalKL">0</div>
+                        <div class="label">总客流量</div>
+                    </div>
+                </div>
+           </div>
+           <div class="box black">
+            	<div class="clearfix">
+                	<div style="float:left"><i class="dg-icon">&#xe74c;</i></div>
+                    <div style="float:right; text-align:right;">
+                    	<div class="act ellipsis" id="activityLabel" style="width:160px;">-</div>
+                        <div class="label">主题活动</div>
+                    </div>
+                </div>
+           </div>
+        </div>
+        <!-- END -->
+        
+        <div id="dateChart" class="chart-box"></div>
+        <div id="datePassageChart" class="chart-box" style="margin-bottom:10px;"></div>
+	</body>
+</html>
+<script language="javascript" type="text/javascript" src="../javascript/echarts-all.js"></script>
+<div th:include="/common/javascript :: loadJS"></div>
+<script type="text/javascript">
+	var module = "/kldata";
+	var layer, form;
+		
+	layui.use(['layer', 'form', 'laydate'], function(){
+		layer = layui.layer;
+		form = layui.form;
+		var laydate = layui.laydate;
+		laydate.render({
+			elem: '#sdate',
+			min: '2017-1-1',
+			max: $("#sdate").val(),
+			theme: date_theme,
+			done: function(value, date) {
+				initChart();
+			}
+		});
+		form.on('select(store)', function(obj){
+			initChart();
+		});
+		initChart();
+	});
+	
+	function initChart() {		
+		var dateChart = document.getElementById("dateChart");
+		var datePassageChart = document.getElementById("datePassageChart");
+		var param = $("#listFrm").serializeArray();
+		dg.ajaxRequest(module + "/getKlDataList", param, function(res){
+			var data = res.data;
+			if(!isNotNull(data)) {
+				return;	
+			}
+			$("#totalKL").html(data.totalEnter);
+			settingChart(dateChart, "日客流量数据报表", ['客流量', '出客流'], data.xAxis, [{data: data.enterArray}, {data: data.exitArray}], false);
+		});
+		
+		dg.ajaxRequest(module + "/activityList", param, function(res){
+			var act = isNotNull(res.data) ? res.data.name : '-';
+			$("#activityLabel").html(act);
+			$("#activityLabel").attr("title", act);
+		});
+				
+		dg.ajaxRequest(module + "/passageList", param, function(res){ // passage list
+			var data = res.data;
+			if(!isNotNull(data)) {
+				return;	
+			}			
+			var legend = [];
+			var xAxis = null;
+			var series = [];
+			$.each(data, function(idx, passage){
+				if(passage.type != 1) {
+					return true;
+				}
+				legend.push(passage.name);
+				var param = $("#listFrm").serializeArray();
+				param.push({"name": "passageId", "value": passage.id});
+				dg.ajaxSynchRequest(module + "/getKlDataList", param, function(res){
+					var psData = res.data;
+					if(!isNotNull(psData)) {
+						return;	
+					}
+					if(xAxis == null) {
+						xAxis = psData.xAxis;
+					}
+					var seriesItem = {data: psData.enterArray};
+					series.push(seriesItem);
+				});
+			});
+			settingChart(datePassageChart, "通道客流量数据报表", legend, xAxis, series, false);			
+		});		
+	}
+</script>

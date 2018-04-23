@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8" />
+        <title>帝之售智能客流分析平台</title>        
+        <link rel="shortcut icon" href="images/favicon.ico" />
+        <link type="text/css" rel="stylesheet" href="layui/css/layui.css" />
+        <style type="text/css">
+			html, body {height:100%; min-height:100%; min-width:100%; padding:0px; margin:0px; overflow:hidden; font-family:微软雅黑, Arial; font-size:10pt;
+					background-repeat:no-repeat; background-size:cover !important; background-position:top;
+					background-image:url(images/bg_login_bg.jpg);}
+			.login {
+				position: absolute;
+				top: 25%;
+				left: 36%;
+				width: 350px;
+				-webkit-border-radius: 1px;
+				-moz-border-radius: 1px;
+				border-radius: 1px;
+				background-color:#FFF;
+				padding:20px 40px 20px 40px;		
+			}
+			.login-title {
+				font-size: 18pt;
+				padding-bottom: 10px;
+				color: #6f6f6f;
+			}
+			#username {background:url(images/login-user.png); background-repeat:no-repeat; background-position:3px; background-size:20px; padding-left:30px;}
+			#password {background:url(images/login-pwd.png); background-repeat:no-repeat; background-position:3px; background-size:20px; padding-left:30px;}
+			#verify {background:url(images/login-verify.png); background-repeat:no-repeat; background-position:3px; background-size:20px; padding-left:30px;}
+		</style>
+        
+    </head>
+
+    <body>
+    	<div id="dg-bg" style="position:fixed;width:100%;height:100%;top:0;">
+			<form class="layui-form">
+            	<div class="login">
+                	<div class="layui-form-item login-title"><img src="images/logo.png" />智能客流分析平台</div>
+                	<div class="layui-form-item">
+                    	<input id="username" name="username" type="text" lay-verify="uname" maxlength="20" class="layui-input" placeholder="请输入用户名" />
+                    </div>
+                    <div class="layui-form-item">
+                    	<input id="password" name="password" type="password" lay-verify="pwd" maxlength="20" class="layui-input" placeholder="请输入密码" />
+                    </div>
+                    <div class="layui-form-item">
+                    	<div class="layui-input-inline">
+                    		<input id="verify" name="verify" type="text" lay-verify="verify" maxlength="4" class="layui-input" placeholder="验证码" />
+                        </div>
+                        <div>
+                        	<a href="javascript:void(0);" onclick="setVerify()" title="看不清，点击图片换一张试试">
+                            	<img id="verifyImg" alt="验证码" src="yzm.action" />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                    	<button id="loginBtn" class="layui-btn" lay-submit="" style="width:100%; font-size:12pt;" lay-filter="login">登录</button>
+                    </div>
+                </div>
+            </form>
+		</div>
+    </body>
+    <script language="javascript" type="text/javascript" src="javascript/jquery-3.2.1.min.js"></script>
+    <script language="javascript" type="text/javascript" src="layui/layui.js"></script>   
+    <script language="javascript" type="text/javascript" src="javascript/point-line.js"></script>
+    <script language="javascript" type="text/javascript" src="javascript/digisold.js"></script>
+    <script language="javascript" type="text/javascript">
+		layui.use(['form'], function(){
+			var form = layui.form;
+			form.verify({
+				uname: function(value){
+					if($.trim(value) == ''){return '请输入用户名！';}
+				},
+				pwd: function(value){
+					if(value == ''){return '请输入密码！';}
+				},
+				verify: function(value){
+					if($.trim(value) == ''){return '请输入用验证码！';}
+				},
+			});
+			form.on('submit(login)', function(data){
+				var params = $(".layui-form").serializeArray();
+				dg.ajaxRequest('/user_login', params, function(res){
+					if(isNotNull(res.redirect)) {
+						window.location.href = getBasePath() + res.redirect;	
+					}
+				});
+				return false;
+		  });
+		});
+		
+		$(document).ready(function(e) {
+			1 == $("#dg-bg").length && new Wonder({
+				el: "#dg-bg",
+				dotsNumber: 100,
+				lineMaxLength: 300,
+				dotsAlpha: .5,
+				speed: 1.5,
+				clickWithDotsNumber: 5
+			});
+			$("#username").focus();
+			$("#username").val("admin");
+			$("#password").val("abc@123");
+			
+        });
+		
+		function setVerify() {
+			$("#verifyImg").attr("src", getBasePath() + "/yzm.action?time=" + new Date());	
+		}
+	</script>
+</html>
+

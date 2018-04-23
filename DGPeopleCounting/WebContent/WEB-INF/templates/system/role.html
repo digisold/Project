@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+   
+    <body>
+        <form id="listFrm" class="layui-form layui-form-pane">
+        	<blockquote class="layui-elem-quote list-blockquote">
+                <div class="clearfix">
+                    <div style="float:left;">角色列表</div>
+                    <div style="float:right;">
+                    	<button type="button" class="layui-btn sm" v-on:click="doAdd()"><i class="layui-icon">&#xe654;</i>新增角色</button>
+                    </div>
+                </div>
+            </blockquote>     
+            <table id="listTab" class="layui-table"  style="margin-top:0px;">
+                <thead>
+                    <th width="200">角色名称</th>                   
+                    <th>角色描述</th>
+                    <th width="200" style="text-align:center;">操作</th>
+                </thead>
+                <tbody>
+                	<tr v-for="item in list">
+                        <td v-text="item.name"></td>
+                        <td v-text="item.description"></td>
+                        <td class="text-center">
+                        	<div class="layui-btn-group">
+                            	<button type="button" class="layui-btn" v-on:click="doEdit(item.id)"><i class="layui-icon">&#xe642;</i>编辑</button>
+								<button type="button" class="layui-btn" v-on:click="doDelete(item.id)"><i class="layui-icon">&#xe640;</i>删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="listPage"></div>
+        </form>
+	</body>
+    <div id="addPanel" style="display:none;">
+        <form id="addFrm" name="addFrm" class="layui-form layui-form-pane">
+        	<input id="id" name="id" v-bind:value="role.id" type="hidden" />
+            <div class="layui-form-item">
+                <label class="layui-form-label">角色名称</label>
+                <div class="layui-input-block">
+                	<input id="name" name="name" type="text" v-bind:value="role.name" class="layui-input" maxlength="20" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">角色描述</label>
+                <div class="layui-input-block">
+                	<input id="description" name="description" type="text" v-bind:value="role.description" class="layui-input" maxlength="255" />
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">设置权限</label>
+                <div class="layui-input-block" style="padding:10px;">
+                	<table class="layui-table" lay-size="sm" style="margin:0px;">
+                        <tbody>
+                        	<template v-for="item in systemList">
+                                <tr>
+                                    <td :style="{'padding-left': (item.id >= 10 && item.id <= 100) ? '30px' : 
+                                    			(item.id >= 1000 && item.id <= 9999) ? '60px' : ''}">
+                                    	<input type="checkbox" name="menuId" v-bind:value="item.id" lay-ignore v-bind:parent-id="item.parentMenuId"
+                                        	v-on:change="doCheck($event)" />
+                                    	<span v-html="item.name"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</html>
+
+<div th:include="/common/javascript :: loadJS"></div>
+<script type="text/javascript">
+	var module = "/role";
+	var layer, form;
+	
+	var roleData = {
+		role: {} // 新增或修改数据
+		,systemList:[{}] // 系统菜单
+	};
+	var editRoleVue = new Vue({
+		el: '#addFrm'
+		,data: roleData
+		,methods: {
+			doCheck: function(event) {
+				var menuId = $(event.currentTarget).val();
+				var isChecked = $(event.currentTarget).prop("checked");
+				var checkbox = $(":checkbox[name=menuId][parent-id='" + menuId + "']");
+				checkbox.prop("checked", isChecked);
+				for(var i = 0;i < checkbox.length; i++) {
+					var ck = checkbox[i];
+					$(":checkbox[name=menuId][parent-id='" + $(ck).val() + "']").prop("checked", isChecked);
+				}
+			}
+		}
+	});
+	
+	var listVue = new Vue({
+		el: '#listFrm'
+		,data: {
+			list: []
+		}
+		,methods:{
+			doAdd: function(){
+				$("#addFrm")[0].reset();
+				$("#id").val("");
+				optPanel();
+			}
+			,doEdit: function(id){
+				$("#id").val(id);
+				optPanel();				
+			}
+			,doDelete: function(id){
+				var delIndx = layer.confirm(
+					"确定要删除吗？",
+					{btn:["确定", "取消"]},
+					function(){
+						layer.close(delIndx);
+						var param = {id: id};
+						dg.ajaxRequest(module + "/delete", param, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								list();
+							}				
+						});
+					}
+				);
+			}
+		}
+	});
+	
+	layui.use(['layer', 'form'], function(){
+		layer = layui.layer;
+		form = layui.form;
+		// 加载列表
+		list();	
+		// 加载系统菜单
+		dg.ajaxRequest(module + "/system_menu_list", null, function(res){
+			roleData.systemList = res.data;
+		});
+	});
+	
+	function optPanel() {
+		var roleId = $("#id").val();
+		var layerIdx = layer.open({
+			type: 1,
+			title: (roleId != '' ? '编辑' : '新增') + '角色',
+			area: ['500px', '450px'],
+			shade: 0.1,
+			btn: ['保存', '取消'],
+			btnAlign: 'c',
+			content: $("#addPanel"),
+			success:function(){
+				$(":checkbox[name=menuId]").prop("checked", false);
+				// 编辑数据
+				if(roleId != '') {
+					var param = {id: roleId};
+					dg.ajaxRequest(module + "/detail", param, function(res){
+						var role = res.data;
+						if(!isNotNull(role)) {
+							return;	
+						}
+						roleData.role = role;
+						var sysmenus = $.parseJSON(role.sysMenus);
+						$.each(sysmenus, function(idx, menu){
+							$(":checkbox[name=menuId][value='" + menu + "']").prop("checked", true);
+						});
+					});
+				}
+				form.render();			
+			},
+			yes: function(index, layero) {
+				if($("#name").val() == "") {
+					layer.msg("角色名称不能为空！");
+					$("#name").focus();
+					return;	
+				}
+				var params = $("#addFrm").serializeArray();
+				dg.ajaxRequest(module + "/save", params, function(res){
+					var status = res.status;
+					if(isNotNull(status) && status == "10000") {
+						list();
+						layer.close(layerIdx);
+					}
+				});
+			}
+		});		
+	}
+	
+	// 加载页码和列表
+	function list() {
+		var params = $("#listFrm").serializeArray();
+		dg.ajaxRequest(module + "/list_count", params, function(res){
+			dg.listPage("listPage", res.records, res.pageSize, function(curPage){
+				listPage(curPage);
+			});
+		});
+		listPage(1);
+	}
+	
+	function listPage(curPage) {
+		curPage = (curPage==null || curPage == undefined) ? 1 : curPage;
+		var params = $("#listFrm").serializeArray();
+		params.push({"name" : "currentPage", "value" : curPage});
+		dg.ajaxRequest(module + "/list", params, function(res){
+			listVue.$data.list = res.data;
+		});	
+	}
+</script>

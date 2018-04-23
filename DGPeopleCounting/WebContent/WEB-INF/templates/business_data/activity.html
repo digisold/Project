@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+   
+    <body>
+        <form id="listFrm" class="layui-form layui-form-pane">
+        	<blockquote class="layui-elem-quote list-blockquote">
+                <div class="clearfix">
+                    <div style="float:left;">活动列表</div>
+                    <div style="float:right;">
+                    	<button type="button" class="layui-btn sm" v-on:click="doAdd()"><i class="layui-icon">&#xe654;</i>新增活动</button>
+                    </div>
+                </div>
+            </blockquote>
+            <div class="layui-form-item" style="margin-bottom:0px;">
+                <div class="layui-inline">
+                    <label class="layui-form-label">案场名称</label>
+                    <div class="layui-input-block">
+                        <select name="storeId" lay-filter="store" class="storeItems"></select>
+                    </div>
+                </div>
+            </div>
+            <table id="listTab" class="layui-table"  style="margin-top:0px;">
+                <thead>
+                    <th width="150">案场名称</th>                   
+                    <th width="150">活动名称</th>
+                    <th width="180">活动时间</th>
+                    <th width="200">活动描述</th>
+                    <th>状态</th>
+                    <th width="150" style="text-align:center;">操作</th>
+                </thead>
+                <tbody>
+                	<tr v-for="item in list">
+                        <td v-text="item.storeName"></td>
+                        <td v-text="item.name"></td>
+                        <td v-text="item.startDate + ' 到 ' + item.endDate"></td>
+                        <td v-text="item.description"></td>
+                        <td v-text="item.status == -1 ? '即将进行' : item.status == 1 ? '正常进行中' : '活动已结束'" 
+                        	:style="{'color': item.status == 1 ? '#008400' : item.status == 0 ? '#F00' : ''}"></td>
+                        <td class="text-center">
+                        	<div class="layui-btn-group">
+                            	<button type="button" class="layui-btn" v-on:click="doEdit(item.id)"><i class="layui-icon">&#xe642;</i>编辑</button>
+								<button type="button" class="layui-btn" v-on:click="doDelete(item.id)"><i class="layui-icon">&#xe640;</i>删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="listPage"></div>
+        </form>
+	</body>
+    <div id="addPanel" style="display:none;">
+        <form id="addFrm" name="addFrm" class="layui-form layui-form-pane">
+        	<input id="id" name="id" v-bind:value="activity.id" type="hidden" />
+            <div class="layui-form-item">
+            	<label class="layui-form-label">案场名称</label>
+                <div class="layui-input-block" style="z-index:10000;">
+                	<select id="storeId" name="storeId" class="storeItems"></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">活动名称</label>
+                <div class="layui-input-block">
+                	<input id="name" name="name" type="text" v-bind:value="activity.name" class="layui-input" maxlength="50" />
+                </div>
+            </div>
+             <div class="layui-form-item">
+            	<label class="layui-form-label">活动时间</label>
+                <div class="layui-input-inline">
+                	<input id="sdate" name="sdate" type="text" v-bind:value="activity.startDate" class="layui-input" readonly maxlength="10" />
+                </div>
+                <div class="layui-form-mid layui-word-aux">到</div>
+                <div class="layui-input-inline">
+                	<input id="edate" name="edate" type="text" v-bind:value="activity.endDate" class="layui-input" readonly max="10" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">活动描述</label>
+                <div class="layui-input-block">
+                	<input id="description" name="description" type="text" v-bind:value="activity.description" class="layui-input" maxlength="200" />
+                </div>
+            </div>
+        </form>
+    </div>
+</html>
+
+<div th:include="/common/javascript :: loadJS"></div>
+<script type="text/javascript">
+	var module = "/activity";
+	var layer, form;
+	
+	var activityData = {
+		activity: {} // 新增或修改数据
+	};
+	var editActivityVue = new Vue({
+		el: '#addFrm'
+		,data: activityData
+	});
+	
+	var listVue = new Vue({
+		el: '#listFrm'
+		,data: {
+			list: []
+		}
+		,methods:{
+			doAdd: function(){
+				$("#addFrm")[0].reset();
+				$("#id").val("");
+				optPanel();
+			}
+			,doEdit: function(id){
+				$("#id").val(id);
+				optPanel();				
+			}
+			,doDelete: function(id){
+				var delIndx = layer.confirm(
+					"确定要删除吗？",
+					{btn:["确定", "取消"]},
+					function(){
+						layer.close(delIndx);
+						var param = {id: id};
+						dg.ajaxRequest(module + "/delete", param, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								list();
+							}				
+						});
+					}
+				);
+			}
+		}
+	});
+	
+	layui.use(['layer', 'form', 'laydate'], function(){
+		layer = layui.layer;
+		form = layui.form;
+		var laydate = layui.laydate;
+		laydate.render({
+			elem: '#sdate',
+			min: '2017-1-1',
+			theme: date_theme
+		});
+		laydate.render({
+			elem: '#edate',
+			min: '2017-1-1',
+			theme: date_theme
+		});
+		// 联级事件
+		form.on("select(store)", function(obj){
+			list();
+		});
+		// 加载列表
+		list();
+	});
+	
+	function optPanel() {
+		var activityId = $("#id").val();
+		var layerIdx = layer.open({
+			type: 1,
+			title: (activityId != '' ? '编辑' : '新增') + '活动',
+			area: ['580px', '350px'],
+			shade: 0.1,
+			btn: ['保存', '取消'],
+			btnAlign: 'c',
+			content: $("#addPanel"),
+			success:function(){
+				// 编辑数据
+				if(activityId != '') {
+					var param = {id: activityId};
+					dg.ajaxRequest(module + "/detail", param, function(res){
+						var activity = res.data;
+						if(!isNotNull(activity)) {
+							return;	
+						}
+						activity.startDate = activity.startDate.substring(0, 10);
+						activity.endDate = activity.endDate.substring(0, 10);
+						activityData.activity = activity;
+						$("#storeId").val(activity.storeId);
+						form.render();
+					});
+				}
+				form.render();			
+			},
+			yes: function(index, layero) {
+				if($("#storeId").val() == "") {
+					layer.msg("案场名称不能为空！");
+					return;	
+				}
+				if($("#name").val() == "") {
+					layer.msg("活动名称不能为空！");
+					$("#activityname").focus();
+					return;	
+				}
+				if($("#sdate").val() == "") {
+					layer.msg("请选择活动开始时间！");
+					return;	
+				}
+				if($("#edate").val() == "") {
+					layer.msg("请选择活动结束时间！");
+					return;	
+				}
+				var params = $("#addFrm").serializeArray();
+				dg.ajaxRequest(module + "/save", params, function(res){
+					var status = res.status;
+					if(isNotNull(status) && status == "10000") {
+						list();
+						layer.close(layerIdx);
+					}
+				});
+			}
+		});		
+	}
+	
+	// 加载页码和列表
+	function list() {
+		var params = $("#listFrm").serializeArray();
+		dg.ajaxRequest(module + "/list_count", params, function(res){
+			dg.listPage("listPage", res.records, res.pageSize, function(curPage){
+				listPage(curPage);
+			});
+		});
+		listPage(1);
+	}
+	
+	function listPage(curPage) {
+		curPage = (curPage==null || curPage == undefined) ? 1 : curPage;
+		var params = $("#listFrm").serializeArray();
+		params.push({"name" : "currentPage", "value" : curPage});
+		dg.ajaxRequest(module + "/list", params, function(res){
+			listVue.$data.list = res.data;
+		});	
+	}
+</script>

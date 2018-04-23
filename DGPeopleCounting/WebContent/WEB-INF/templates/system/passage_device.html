@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+   
+    <body>
+        <form id="listFrm" class="layui-form layui-form-pane">
+        	<blockquote class="layui-elem-quote list-blockquote">
+                <div class="clearfix">
+                    <div style="float:left;">通道设备列表</div>
+                </div>
+            </blockquote>
+            <div class="layui-form-item" style="margin-bottom:0px;">
+                <div class="layui-inline">
+                    <label class="layui-form-label">案场名称</label>
+                    <div class="layui-input-block">
+                        <select name="storeId" lay-filter="store" class="storeItems"></select>
+                    </div>
+                </div>
+               <div class="layui-inline">
+                    <label class="layui-form-label">通道名称</label>
+                    <div class="layui-input-block">
+                        <select id="passageId" name="passageId" lay-filter="passage"></select>
+                    </div>
+                </div>
+            </div>      
+            <table id="listTab" class="layui-table"  style="margin-top:0px;">
+                <thead>
+                    <th width="150">案场名称</th>
+                    <th width="100">通道类型</th>
+                    <th width="140">通道名称</th>
+                    <th width="100">设备码</th>
+                    <th width="100">设备IP</th>
+                    <th width="180">数据最后上传时间</th>
+                    <th width="80">状态</th>
+                    <th width="80">进出反转</th>
+                    <th width="60" style="text-align:center">操作</th>
+                </thead>
+                <tbody>
+                	<tr v-for="item in list">
+                    	<td v-text="item.storeName"></td>
+                        <td v-text="item.type == 1 ? '主出入口' : item.type == 2 ? '楼层' : item.type == 3 ? '电梯' : '其他'"></td>
+                        <td v-text="item.name"></td>
+                        <td v-text="item.code"></td>
+                        <td v-text="item.ip"></td>
+                        <td v-text="item.lastUploadDate"></td>
+                        <td v-text="item.status == 1 ? '正常' : '停用'"></td>
+                        <td v-text="item.dataReverse == 1 ? '否' : '是'"></td>
+                        <td class="text-center">
+                        	<div class="layui-btn-group">
+								<button type="button" class="layui-btn" v-on:click="doDelete(item.id)"><i class="layui-icon">&#xe640;</i>删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="listPage"></div>
+        </form>
+	</body>
+</html>
+
+<div th:include="/common/javascript :: loadJS"></div>
+<script type="text/javascript">
+	var module = "/passage_device";
+	var layer, form;
+	
+	var listVue = new Vue({
+		el: '#listFrm'
+		,data: {
+			list: []
+		}
+		,methods:{
+			doDelete: function(id){
+				var delIndx = layer.confirm(
+					"确定要删除吗？",
+					{btn:["确定", "取消"]},
+					function(){
+						layer.close(delIndx);
+						var param = {id: id};
+						dg.ajaxRequest(module + "/delete", param, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								list();
+							}				
+						});
+					}
+				);
+			}
+		}
+	});
+	
+	layui.use(['layer', 'form'], function(){
+		layer = layui.layer;
+		form = layui.form;
+		
+		// 联级事件
+		form.on("select(store)", function(obj){
+			var params = {storeId: obj.value};
+			$("#passageId").val("");
+			form.render();		
+			dg.ajaxRequest(module + "/store_passage_list", params, function(res){
+				var html = '<option value="">~ 请选择 ~</option>';
+				$.each(res.data, function(idx, p){
+					html += '<option value="' + p.id + '">'+ p.name +'</option>';
+				});
+				$("#passageId").html(html);
+				form.render();
+			});			
+			list();
+		});
+		// 联级事件
+		form.on("select(passage)", function(obj){
+			list();
+		});
+		
+		// 加载列表
+		list();
+	});
+	
+	// 加载页码和列表
+	function list() {
+		var params = $("#listFrm").serializeArray();
+		dg.ajaxRequest(module + "/list_count", params, function(res){
+			dg.listPage("listPage", res.records, res.pageSize, function(curPage){
+				listPage(curPage);
+			});
+		});
+		listPage(1);
+	}
+	
+	function listPage(curPage) {
+		curPage = (curPage==null || curPage == undefined) ? 1 : curPage;
+		var params = $("#listFrm").serializeArray();
+		params.push({"name" : "currentPage", "value" : curPage});
+		dg.ajaxRequest(module + "/list", params, function(res){
+			listVue.$data.list = res.data;
+		});	
+	}
+</script>

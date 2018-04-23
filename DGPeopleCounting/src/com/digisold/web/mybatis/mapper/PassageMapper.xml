@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.PassageMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.Passage">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="store_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="type" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="updater" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="update_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, store_id, type, name, creator, create_date, updater, update_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from passage
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete t, t2 from passage t
+    	left outer join store_device_passage t2 on t.id = t2.passage_id
+	where t.id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.Passage">
+    insert into passage (id, store_id, type, 
+      name, creator, create_date, 
+      updater, update_date)
+    values (#{id,jdbcType=CHAR}, #{storeId,jdbcType=CHAR}, #{type,jdbcType=INTEGER}, 
+      #{name,jdbcType=VARCHAR}, #{creator,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updater,jdbcType=CHAR}, #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.Passage">
+    insert into passage
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="storeId != null">
+        store_id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updater != null">
+        updater,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="storeId != null">
+        #{storeId,jdbcType=CHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.Passage">
+    update passage
+    <set>
+      <if test="storeId != null">
+        store_id = #{storeId,jdbcType=CHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        updater = #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.Passage">
+    update passage
+    set store_id = #{storeId,jdbcType=CHAR},
+      type = #{type,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      updater = #{updater,jdbcType=CHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  
+  <select id="checkNameIsExists" resultType="java.lang.Long" parameterType="com.digisold.web.mybatis.entity.Passage">
+  	select count(t.id) from passage t
+  	<where>
+	  	<if test="id != null and id != ''">
+	  	<![CDATA[
+	  		and t.name <> (select p.name from passage p where p.id = #{id})
+	  	]]>	
+	  	</if>
+	  	<if test="storeId != null and storeId != ''">
+	  		and t.store_id = #{storeId}
+	  	</if>
+	  	<if test="type != null and type != ''">
+	  		and t.type = #{type}
+	  	</if>
+	  	<if test="name != null and name != ''">
+	  		and t.name = #{name}
+	  	</if>
+  	</where>
+  </select>
+  
+  <select id="countPassageList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.system.model.PassageListModel">
+  	select count(t.id) from passage t inner join store t2 on t.store_id = t2.id
+  	<where>
+  		<if test="storeId != null and storeId != ''">
+  			and t2.id = #{storeId}
+  		</if>
+  	</where>
+  </select>
+  
+  <select id="passageList" resultType="com.digisold.web.manage.system.vo.PassageListVo" parameterType="com.digisold.web.manage.system.model.PassageListModel">
+  	select t.id, t2.name as storeName, t.type, t.name, DATE_FORMAT(t.create_date, '%Y-%m-%d  %H:%i') as createDate
+  	from passage t inner join store t2 on t.store_id = t2.id
+  	<where>
+  		<if test="storeId != null and storeId != ''">
+  			and t2.id = #{storeId}
+  		</if>
+  	</where>
+  	order by t2.id, t.type asc
+  	limit #{pageIndex}, #{pageSize}
+  </select>
+  
+  <select id="passageListByStore" resultType="java.util.Map">
+  	select t.id, t.type, t.name from passage t inner join store t2 on t.store_id = t2.id
+  		where t2.id = #{storeId}
+  		order by t.type, t.name asc
+  </select>
+</mapper>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.SalesMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.Sales">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="store_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="sale_date" javaType="java.util.Date" jdbcType="DATE" />
+      <arg column="orders" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="amount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="total" javaType="java.lang.Double" jdbcType="DOUBLE" />
+      <arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="updater" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="update_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, store_id, sale_date, orders, amount, total, creator, create_date, updater, update_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sales
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from sales
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.Sales">
+    insert into sales (id, store_id, sale_date, 
+      orders, amount, total, 
+      creator, create_date, updater, 
+      update_date)
+    values (#{id,jdbcType=CHAR}, #{storeId,jdbcType=CHAR}, #{saleDate,jdbcType=DATE}, 
+      #{orders,jdbcType=INTEGER}, #{amount,jdbcType=INTEGER}, #{total,jdbcType=DOUBLE}, 
+      #{creator,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updater,jdbcType=CHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.Sales">
+    insert into sales
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="storeId != null">
+        store_id,
+      </if>
+      <if test="saleDate != null">
+        sale_date,
+      </if>
+      <if test="orders != null">
+        orders,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="total != null">
+        total,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updater != null">
+        updater,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="storeId != null">
+        #{storeId,jdbcType=CHAR},
+      </if>
+      <if test="saleDate != null">
+        #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="orders != null">
+        #{orders,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=INTEGER},
+      </if>
+      <if test="total != null">
+        #{total,jdbcType=DOUBLE},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.Sales">
+    update sales
+    <set>
+      <if test="storeId != null">
+        store_id = #{storeId,jdbcType=CHAR},
+      </if>
+      <if test="saleDate != null">
+        sale_date = #{saleDate,jdbcType=DATE},
+      </if>
+      <if test="orders != null">
+        orders = #{orders,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=INTEGER},
+      </if>
+      <if test="total != null">
+        total = #{total,jdbcType=DOUBLE},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        updater = #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.Sales">
+    update sales
+    set store_id = #{storeId,jdbcType=CHAR},
+      sale_date = #{saleDate,jdbcType=DATE},
+      orders = #{orders,jdbcType=INTEGER},
+      amount = #{amount,jdbcType=INTEGER},
+      total = #{total,jdbcType=DOUBLE},
+      creator = #{creator,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      updater = #{updater,jdbcType=CHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  
+  <select id="countSaleList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.business_data.model.SaleListModel">
+ 	 select count(t.id) from sales t inner join store t2 on t.store_id = t2.id
+ 	 <where>
+ 	 	<if test="storeId != null and storeId != ''">
+ 	 		and t2.id = #{storeId}
+ 	 	</if>
+ 	 	<if test="startDate != null">
+ 	 		and t.sale_date >= startDate
+ 	 	</if>
+ 	 	<if test="endDate != null">
+ 	 	<![CDATA[
+ 	 		and t.sale_date <= endDate
+ 	 	 ]]>	
+ 	 	</if>
+ 	 </where>
+  </select>
+
+  <select id="saleList" resultType="com.digisold.web.manage.business_data.vo.SaleListVo" parameterType="com.digisold.web.manage.business_data.model.SaleListModel"> 	
+ 	  <![CDATA[
+ 	  select 
+ 	  	t.id, t2.name as storeName, DATE_FORMAT(t.sale_date, '%Y-%m-%d') as saleDate,
+ 	  	t.orders, t.amount, t.total
+ 	  from sales t inner join store t2 on t.store_id = t2.id
+ 	 ]]>
+ 	 <where>
+ 	 	<if test="storeId != null and storeId != ''">
+ 	 		and t2.id = #{storeId}
+ 	 	</if>
+ 	 	<if test="startDate != null">
+ 	 		and t.sale_date >= startDate
+ 	 	</if>
+ 	 	<if test="endDate != null">
+ 	 	<![CDATA[
+ 	 		and t.sale_date <= endDate
+ 	 	 ]]>	
+ 	 	</if>
+ 	 </where>
+ 	 order by t2.id, t.sale_date asc
+ 	 limit #{pageIndex}, #{pageSize}
+   </select>
+   <select id="selectSaleByDate" resultMap="BaseResultMap" parameterType="com.digisold.web.mybatis.entity.Sales">
+   		select
+   		<include refid="Base_Column_List" />
+   		from sales t
+   		where t.store_id = #{storeId} and t.sale_date = #{saleDate}
+   </select>
+   
+   <update id="updateSaleByDate" parameterType="com.digisold.web.mybatis.entity.Sales">
+   		update sales set orders = orders + #{orders}, amount = amount + #{amount}, total = total + #{total}
+   		where id = #{id}
+   </update>
+   
+   <select id="totalCountSale" resultType="com.digisold.web.manage.business_data.vo.TotalSaleDataVo" parameterType="com.digisold.web.manage.business_data.model.SaleListModel">
+   	 <![CDATA[
+ 	  select
+ 	  	ifnull(sum(t.orders), 0) as totalOrders, ifnull(sum(t.amount), 0) as totalAmount, ifnull(sum(t.total), 0) as total
+ 	  from sales t inner join store t2 on t.store_id = t2.id
+ 	 ]]>
+ 	 <where>
+ 	 	<if test="storeId != null and storeId != ''">
+ 	 		and t2.id = #{storeId}
+ 	 	</if>
+ 	 	<if test="startDate != null">
+ 	 		and t.sale_date >= startDate
+ 	 	</if>
+ 	 	<if test="endDate != null">
+ 	 	<![CDATA[
+ 	 		and t.sale_date <= endDate
+ 	 	 ]]>	
+ 	 	</if>
+ 	 </where>
+   </select>
+</mapper>

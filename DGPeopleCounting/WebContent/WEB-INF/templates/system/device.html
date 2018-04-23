@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+   
+    <body>
+        <form id="listFrm" class="layui-form layui-form-pane">
+        	<blockquote class="layui-elem-quote list-blockquote">
+                <div class="clearfix">
+                    <div style="float:left;">设备列表</div>
+                    <div style="float:right;">
+                    	<button type="button" class="layui-btn sm" v-on:click="doAdd()"><i class="layui-icon">&#xe654;</i>新增设备</button>
+                    </div>
+                </div>
+            </blockquote>
+            <div class="layui-form-item" style="margin-bottom:0px;">
+                <div class="layui-inline">
+                    <label class="layui-form-label">设备码</label>
+                    <div class="layui-input-block">
+                        <input name="code" value="" type="text" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button id="searchBtn" type="button" class="layui-btn" onclick="list()"><i class="layui-icon">&#xe615;</i>查询</button>
+                </div>
+            </div>      
+            <table id="listTab" class="layui-table"  style="margin-top:0px;">
+                <thead>
+                	 <th width="60">类型</th>
+                    <th width="80">设备码</th>                   
+                    <th width="80">设备IP</th>
+                    <th width="120">数据最后上传时间</th>
+                    <th width="240" style="text-align:center;">操作</th>
+                </thead>
+                <tbody>
+                	<tr v-for="item in list">                        
+                        <td v-text="item.type == 1 ? '客流统计' : item.type == 2 ? '人脸识别' : '其他'"></td>
+                        <td v-text="item.code"></td>
+                        <td v-text="item.ip"></td>
+                        <td v-text="item.lastUploadDate"></td>
+                        <td class="text-center">
+                        	<div class="layui-btn-group">
+                                <button type="button" class="layui-btn" v-on:click="doLinkStore(item.id)">
+                                	<i class="layui-icon">&#xe64c;</i>关联案场<span v-text="' 【 ' + item.stores + ' 】'"></span>
+                                </button>
+                            	<button type="button" class="layui-btn" v-on:click="doEdit(item.id)"><i class="layui-icon">&#xe642;</i>编辑</button>
+								<button type="button" class="layui-btn" v-on:click="doDelete(item.id)"><i class="layui-icon">&#xe640;</i>删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="listPage"></div>
+        </form>
+	</body>
+    <div id="addPanel" style="display:none;">
+        <form id="addFrm" name="addFrm" class="layui-form layui-form-pane">
+        	<input id="id" name="id" v-bind:value="device.id" type="hidden" />
+            <div class="layui-form-item">
+            	<label class="layui-form-label">设备类型</label>
+                <div class="layui-input-block" style="z-index:9999;">
+                	<select id="type" name="type">
+                    	<option value="1">客流统计</option>
+                        <option value="2">人脸识别</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">设备码</label>
+                <div class="layui-input-block">
+                	<input id="code" name="code" type="text" v-bind:value="device.code" class="layui-input" maxlength="100" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">IP地址</label>
+                <div class="layui-input-block">
+                	<input id="ip" name="ip" type="text" v-bind:value="device.ip" class="layui-input" maxlength="50" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">MAC地址</label>
+                <div class="layui-input-block">
+                	<input id="macAddress" name="macAddress" type="text" v-bind:value="device.macAddress" class="layui-input" maxlength="50" />
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="storeListPanel" style="display:none;">
+    	<form id="storeListFrm">
+        	<input type="hidden" name="deviceId" value="" />
+        	<table class="layui-table" lay-size="sm" style="width:98%; margin:10px auto;">                        	
+                <thead><th width="50"></th><th>案场名称</th></thead>
+                <tbody>
+                    <template v-for="item in list">
+                        <tr>
+                            <td class="text-right">                                            	
+                                <a href="javascript:void(0);" v-if="item.childStoreList.length > 0">
+                                    <i class="dg-icon up">&#xe791;</i>
+                                </a>
+                                <input type="checkbox" name="storeItem" v-bind:value="item.store.id" lay-ignore />
+                            </td>
+                            <td v-text="item.store.name"></td>
+                        </tr>
+                        <tr v-for="childItem in item.childStoreList" v-bind:data="item.store.id">
+                            <td class="text-right"><input type="checkbox" name="storeItem" v-bind:value="childItem.id" lay-ignore /></td>
+                            <td v-html="'&nbsp;&nbsp;∟' + childItem.name"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</html>
+
+<div th:include="/common/javascript :: loadJS"></div>
+<script type="text/javascript">
+	var module = "/device";
+	var layer, form;
+	
+	var deviceData = {
+		device: {} // 新增或修改数据
+	};
+	var editDeviceVue = new Vue({
+		el: '#addFrm'
+		,data: deviceData
+	});
+	
+	var storeListVue = new Vue({
+		el: '#storeListPanel'
+		,data: {
+			list: []
+		}
+	});
+	
+	var listVue = new Vue({
+		el: '#listFrm'
+		,data: {
+			list: []
+		}
+		,methods:{
+			doAdd: function(){
+				$("#addFrm")[0].reset();
+				$("#id").val("");
+				optPanel();
+			}
+			,doLinkStore: function(devId) {
+				$("#storeListPanel").find("input[name=deviceId]").val(devId);
+				var layerIdx = layer.open({
+					type: 1,
+					title: '案场列表',
+					area: ['500px', '460px'],
+					shade: 0.1,
+					btn: ['保存', '取消'],
+					btnAlign: 'c',
+					content: $("#storeListPanel"),
+					success:function(){
+						$(":checkbox[name=storeItem]").prop("checked", false);
+						var param = {deviceId: devId};
+						dg.ajaxRequest(module + "/store_device_list", param, function(res){
+							$.each(res.data, function(idx, sd){
+								$(":checkbox[name=storeItem][value='"+ sd.storeId +"']").prop("checked", true);
+							});
+						});
+					},
+					yes: function(index, layero) {
+						var params = $("#storeListFrm").serializeArray();
+						dg.ajaxRequest(module + "/save_device_store", params, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								layer.close(layerIdx);
+								list();
+							}
+						});
+					}
+				});	
+			}
+			,doEdit: function(id){
+				$("#id").val(id);
+				optPanel();				
+			}
+			,doDelete: function(id){
+				var delIndx = layer.confirm(
+					"确定要删除吗？",
+					{btn:["确定", "取消"]},
+					function(){
+						layer.close(delIndx);
+						var param = {id: id};
+						dg.ajaxRequest(module + "/delete", param, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								list();
+							}				
+						});
+					}
+				);
+			}
+		}
+	});
+	
+	layui.use(['layer', 'form'], function(){
+		layer = layui.layer;
+		form = layui.form;
+		
+		// 联级事件
+		form.on("select(store)", function(obj){
+			list();
+		});
+		
+		// 加载列表
+		list();
+		
+		// 加载案场列表
+		dg.ajaxRequest(module + "/store_list", null, function(res){
+			storeListVue.$data.list = res.data;
+		});					
+	});
+	
+	function optPanel() {
+		var devId = $("#id").val();
+		var layerIdx = layer.open({
+			type: 1,
+			title: (devId != '' ? '编辑' : '新增') + '设备',
+			area: ['600px', '350px'],
+			shade: 0.1,
+			btn: ['保存', '取消'],
+			btnAlign: 'c',
+			content: $("#addPanel"),
+			success:function(){
+				// 编辑数据
+				if(devId != '') {
+					var param = {id: devId};
+					dg.ajaxRequest(module + "/detail", param, function(res){
+						var device = res.data;
+						if(!isNotNull(device)) {
+							return;	
+						}
+						deviceData.device = device;
+						$("#type").val(device.type);
+						form.render();
+					});
+				}
+				form.render();			
+			},
+			yes: function(index, layero) {
+				if($("#type").val() == "") {
+					layer.msg("设备类型不能为空！");
+					return;
+				}
+				if($("#code").val() == "") {
+					layer.msg("设备码不能为空！");
+					$("#code").focus();
+					return;	
+				}
+				var params = $("#addFrm").serializeArray();
+				dg.ajaxRequest(module + "/save", params, function(res){
+					var status = res.status;
+					if(isNotNull(status) && status == "10000") {
+						list();
+						layer.close(layerIdx);
+					}
+				});
+			}
+		});		
+	}
+	
+	// 加载页码和列表
+	function list() {
+		var params = $("#listFrm").serializeArray();
+		dg.ajaxRequest(module + "/list_count", params, function(res){
+			dg.listPage("listPage", res.records, res.pageSize, function(curPage){
+				listPage(curPage);
+			});
+		});
+		listPage(1);
+	}
+	
+	function listPage(curPage) {
+		curPage = (curPage==null || curPage == undefined) ? 1 : curPage;
+		var params = $("#listFrm").serializeArray();
+		params.push({"name" : "currentPage", "value" : curPage});
+		dg.ajaxRequest(module + "/list", params, function(res){
+			listVue.$data.list = res.data;
+		});	
+	}
+</script>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.ActivityMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.Activity">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="store_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="start_date" javaType="java.util.Date" jdbcType="DATE" />
+      <arg column="end_date" javaType="java.util.Date" jdbcType="DATE" />
+      <arg column="description" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="updater" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="update_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, store_id, name, start_date, end_date, description, creator, create_date, updater, 
+    update_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from activity
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from activity
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.Activity">
+    insert into activity (id, store_id, name, 
+      start_date, end_date, description, 
+      creator, create_date, updater, 
+      update_date)
+    values (#{id,jdbcType=CHAR}, #{storeId,jdbcType=CHAR}, #{name,jdbcType=VARCHAR}, 
+      #{startDate,jdbcType=DATE}, #{endDate,jdbcType=DATE}, #{description,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updater,jdbcType=CHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.Activity">
+    insert into activity
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="storeId != null">
+        store_id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="startDate != null">
+        start_date,
+      </if>
+      <if test="endDate != null">
+        end_date,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updater != null">
+        updater,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="storeId != null">
+        #{storeId,jdbcType=CHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null">
+        #{endDate,jdbcType=DATE},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.Activity">
+    update activity
+    <set>
+      <if test="storeId != null">
+        store_id = #{storeId,jdbcType=CHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        start_date = #{startDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null">
+        end_date = #{endDate,jdbcType=DATE},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        updater = #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.Activity">
+    update activity
+    set store_id = #{storeId,jdbcType=CHAR},
+      name = #{name,jdbcType=VARCHAR},
+      start_date = #{startDate,jdbcType=DATE},
+      end_date = #{endDate,jdbcType=DATE},
+      description = #{description,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      updater = #{updater,jdbcType=CHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  
+  <select id="countActivityList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.business_data.model.ActivityListModel">
+ 	 select count(t.id) from activity t inner join store t2 on t.store_id = t2.id
+ 	 <where>
+ 	 	<if test="storeId != null and storeId != ''">
+ 	 		and t2.id = #{storeId}
+ 	 	</if>
+ 	 </where>
+  </select>
+
+  <select id="activityList" resultType="com.digisold.web.manage.business_data.vo.ActivityListVo" parameterType="com.digisold.web.manage.business_data.model.ActivityListModel"> 	
+ 	  <![CDATA[
+ 	  select 
+ 	  	t.id, t2.name as storeName, t.name, t.description, 
+ 	  	DATE_FORMAT(t.start_date, '%Y-%m-%d') as startDate, DATE_FORMAT(t.end_date, '%Y-%m-%d') as endDate,
+ 	  	(CASE WHEN (UNIX_TIMESTAMP(DATE_FORMAT(now(),'%Y-%m-%d')) - UNIX_TIMESTAMP(t.start_date)) < 0 then -1
+			ELSE (UNIX_TIMESTAMP(DATE_FORMAT(now(),'%Y-%m-%d')) between UNIX_TIMESTAMP(t.start_date) and UNIX_TIMESTAMP(t.end_date)) END) as status
+ 	  from activity t inner join store t2 on t.store_id = t2.id
+ 	 ]]>
+ 	 <where>
+ 	 	<if test="storeId != null and storeId != ''">
+ 	 		and t2.id = #{storeId}
+ 	 	</if>
+ 	 </where>
+ 	 order by t2.id, t.start_date asc
+ 	 limit #{pageIndex}, #{pageSize}
+   </select>
+   
+   <select id="activityListByDate" resultType="java.util.Map">
+   	 select
+   	 	t.name
+   	 from activity t
+   	 where ( t.start_date between #{startDate} and #{endDate} ) or ( t.end_date between #{startDate} and #{endDate} )
+   	 	or ( #{startDate} between t.start_date and t.end_date ) or ( #{endDate} between t.start_date and t.end_date )
+   	 order by t.start_date limit 1
+   </select>
+</mapper>

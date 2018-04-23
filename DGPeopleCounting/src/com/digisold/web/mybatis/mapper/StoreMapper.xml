@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.StoreMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.Store">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="brand_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="city" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="business_start_time" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="business_end_time" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="employees" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="area" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="tel" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="parent_id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="data_table" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="updater" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="update_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, brand_id, name, city, business_start_time, business_end_time, employees, area, 
+    contact, tel, parent_id, data_table, creator, create_date, updater, update_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from store
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+   delete t, t2, t3, t4, t5, t6, t7, t8 from store t 
+	left outer join passage t2 on t.id = t2.store_id
+	left outer join store_device t3 on t.id = t3.store_id
+ 	left outer join store_device_passage t4 on t4.store_device_id = t3.id
+    left outer join user_store t5 on t5.store_id = t.id
+    left outer join sales t6 on t6.store_id = t.id
+    left outer join device t7 on t7.id = t3.device_id
+    left outer join activity t8 on t8.store_id = t.id
+   where t.id = #{id,jdbcType=CHAR} or t.parent_id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.Store">
+    insert into store (id, brand_id, name, 
+      city, business_start_time, business_end_time, 
+      employees, area, contact, 
+      tel, parent_id, data_table, 
+      creator, create_date, updater, 
+      update_date)
+    values (#{id,jdbcType=CHAR}, #{brandId,jdbcType=CHAR}, #{name,jdbcType=VARCHAR}, 
+      #{city,jdbcType=INTEGER}, #{businessStartTime,jdbcType=INTEGER}, #{businessEndTime,jdbcType=INTEGER}, 
+      #{employees,jdbcType=INTEGER}, #{area,jdbcType=INTEGER}, #{contact,jdbcType=VARCHAR}, 
+      #{tel,jdbcType=VARCHAR}, #{parentId,jdbcType=CHAR}, #{dataTable,jdbcType=INTEGER}, 
+      #{creator,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updater,jdbcType=CHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.Store">
+    insert into store
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="brandId != null">
+        brand_id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="city != null">
+        city,
+      </if>
+      <if test="businessStartTime != null">
+        business_start_time,
+      </if>
+      <if test="businessEndTime != null">
+        business_end_time,
+      </if>
+      <if test="employees != null">
+        employees,
+      </if>
+      <if test="area != null">
+        area,
+      </if>
+      <if test="contact != null">
+        contact,
+      </if>
+      <if test="tel != null">
+        tel,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="dataTable != null">
+        data_table,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updater != null">
+        updater,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="brandId != null">
+        #{brandId,jdbcType=CHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null">
+        #{city,jdbcType=INTEGER},
+      </if>
+      <if test="businessStartTime != null">
+        #{businessStartTime,jdbcType=INTEGER},
+      </if>
+      <if test="businessEndTime != null">
+        #{businessEndTime,jdbcType=INTEGER},
+      </if>
+      <if test="employees != null">
+        #{employees,jdbcType=INTEGER},
+      </if>
+      <if test="area != null">
+        #{area,jdbcType=INTEGER},
+      </if>
+      <if test="contact != null">
+        #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null">
+        #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=CHAR},
+      </if>
+      <if test="dataTable != null">
+        #{dataTable,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.Store">
+    update store
+    <set>
+      <if test="brandId != null">
+        brand_id = #{brandId,jdbcType=CHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null">
+        city = #{city,jdbcType=INTEGER},
+      </if>
+      <if test="businessStartTime != null">
+        business_start_time = #{businessStartTime,jdbcType=INTEGER},
+      </if>
+      <if test="businessEndTime != null">
+        business_end_time = #{businessEndTime,jdbcType=INTEGER},
+      </if>
+      <if test="employees != null">
+        employees = #{employees,jdbcType=INTEGER},
+      </if>
+      <if test="area != null">
+        area = #{area,jdbcType=INTEGER},
+      </if>
+      <if test="contact != null">
+        contact = #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null">
+        tel = #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=CHAR},
+      </if>
+      <if test="dataTable != null">
+        data_table = #{dataTable,jdbcType=INTEGER},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updater != null">
+        updater = #{updater,jdbcType=CHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.Store">
+    update store
+    set brand_id = #{brandId,jdbcType=CHAR},
+      name = #{name,jdbcType=VARCHAR},
+      city = #{city,jdbcType=INTEGER},
+      business_start_time = #{businessStartTime,jdbcType=INTEGER},
+      business_end_time = #{businessEndTime,jdbcType=INTEGER},
+      employees = #{employees,jdbcType=INTEGER},
+      area = #{area,jdbcType=INTEGER},
+      contact = #{contact,jdbcType=VARCHAR},
+      tel = #{tel,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=CHAR},
+      data_table = #{dataTable,jdbcType=INTEGER},
+      creator = #{creator,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      updater = #{updater,jdbcType=CHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  
+  <select id="countStoreList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.system.model.StoreListModel">
+  	select count(t.id) from store t left outer join brand t2 on t.brand_id = t2.id
+  	<where>
+  		<if test="1 == 1">
+  		<![CDATA[
+  			and ifnull(t.brand_id, '') <> ''
+  		]]>
+  		</if>
+  		<if test="brandId != null and brandId != ''">
+  			and t.brand_id = #{brandId}
+  		</if>
+  		<if test="name != null and name != ''">
+  			and t.name like concat('%', #{name}, '%')
+  		</if>
+  	</where>
+  </select>
+  
+  <select id="storeList" resultType="com.digisold.web.manage.system.vo.StoreListVo" parameterType="com.digisold.web.manage.system.model.StoreListModel">  	
+  	select t.id, t2.name as brandName, t.name, t.business_start_time as bstartTime, t.business_end_time as bendTime,
+  		(select c.name from china c where c.id = (select c.parent_id from china c where c.id = t.city)) as province, 
+  		(select c.name from china c where c.id = t.city) as city,
+  		DATE_FORMAT(t.create_date, '%Y-%m-%d  %H:%i') as createDate
+  	from store t left outer join brand t2 on t.brand_id = t2.id
+  	<where>
+  		<if test="1 == 1">
+  		<![CDATA[
+  			and ifnull(t.brand_id, '') <> ''
+  		]]>
+  		</if>
+  		<if test="brandId != null and brandId != ''">
+  			and t.brand_id = #{brandId}
+  		</if>
+  		<if test="name != null and name != ''">
+  			and t.name like concat('%', #{name}, '%')
+  		</if>
+  	</where>
+  	order by t.brand_id, t.city asc
+  	limit #{pageIndex}, #{pageSize}  	
+  </select>
+  
+  <select id="childStoreList" resultType="com.digisold.web.manage.system.vo.StoreListVo">
+  	select t.id, t.name, t.business_start_time as bstartTime, t.business_end_time as bendTime,
+  		DATE_FORMAT(t.create_date, '%Y-%m-%d  %H:%i') as createDate
+  	from store t where t.parent_id = #{storeId}
+  </select>
+  
+  <select id="getMaxTableIdx" resultType="java.lang.Integer">
+  	select ifnull(max(t.data_table), 0) as maxTabIdx from store t
+  </select>
+  
+  <update id="createDataTable">
+  	<![CDATA[
+  		CREATE TABLE IF NOT EXISTS kl_data_#{tableSequence} (
+			id  int(10) NOT NULL AUTO_INCREMENT ,
+			device_id  char(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '设备ID' ,
+			enters  int(5) NOT NULL DEFAULT 0 COMMENT '进入人数' ,
+			exits  int(5) NOT NULL DEFAULT 0 COMMENT '出去人数' ,
+			start_date  datetime NOT NULL COMMENT '开始时间' ,
+			end_date  datetime NOT NULL COMMENT '结束时间' ,
+			create_date  datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+			PRIMARY KEY (id),
+			INDEX IDX_DEVICE_ID(device_id) USING BTREE,
+			INDEX IDX_START_END_DATE(start_date, end_date) USING BTREE 
+		)
+		ENGINE=InnoDB
+		DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+		AUTO_INCREMENT=1
+		ROW_FORMAT=DYNAMIC;
+	]]>		
+  </update>
+  
+  <select id="storeListByUser" resultMap="BaseResultMap" parameterType="java.lang.String">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from store t
+  	<where>
+  		<if test="userId != null and userId != ''">
+  			and t.id in (select us.store_id from user_store us where us.user_id = #{userId})
+  		</if>
+  	</where>
+  	 order by t.create_date asc
+  </select>
+</mapper>

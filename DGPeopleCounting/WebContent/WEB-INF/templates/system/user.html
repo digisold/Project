@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+   
+    <body>
+        <form id="listFrm" class="layui-form layui-form-pane">
+        	<blockquote class="layui-elem-quote list-blockquote">
+                <div class="clearfix">
+                    <div style="float:left;">用户列表</div>
+                    <div style="float:right;">
+                    	<button type="button" class="layui-btn sm" v-on:click="doAdd()"><i class="layui-icon">&#xe654;</i>新增用户</button>
+                    </div>
+                </div>
+            </blockquote>     
+            <table id="listTab" class="layui-table"  style="margin-top:0px;">
+                <thead>
+                    <th width="150">用户名</th>                   
+                    <th width="150">角色名称</th>
+                    <th width="200">使用期限</th>
+                    <th width="80">状态</th>
+                    <th width="300" style="text-align:center;">操作</th>
+                </thead>
+                <tbody>
+                	<tr v-for="item in list">
+                        <td v-text="item.username"></td>
+                        <td v-text="item.roleName"></td>
+                        <td v-text="item.useStartDate + (item.useStartDate != '' ? ' 到 ' : '') + item.useEndDate"></td>
+                        <td v-text="item.status == 1 ? '正常' : '禁用'"></td>
+                        <td class="text-center">
+                        	<div class="layui-btn-group">
+                            	<button type="button" class="layui-btn" v-on:click="doLinkStore(item.id)"><i class="dg-icon">&#xe613;</i>授权案场</button>
+                            	<button type="button" class="layui-btn" v-on:click="doResetPwd(item.id)"><i class="dg-icon">&#xe614;</i>重置密码</button>
+                            	<button type="button" class="layui-btn" v-on:click="doEdit(item.id)"><i class="layui-icon">&#xe642;</i>编辑</button>
+								<button type="button" class="layui-btn" v-on:click="doDelete(item.id)"><i class="layui-icon">&#xe640;</i>删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="listPage"></div>
+        </form>
+	</body>
+    <div id="addPanel" style="display:none;">
+        <form id="addFrm" name="addFrm" class="layui-form layui-form-pane">
+        	<input id="id" name="id" v-bind:value="user.id" type="hidden" />
+            <div class="layui-form-item">
+                <label class="layui-form-label">角色名称</label>
+                <div class="layui-input-block">
+                	<select id="roleId" name="roleId"></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户名</label>
+                <div class="layui-input-block">
+                	<input id="username" name="username" type="text" v-bind:value="user.username" class="layui-input" maxlength="20" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">密码</label>
+                <div class="layui-input-block">
+                	<input id="password" type="password" class="layui-input" maxlength="255" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">确认密码</label>
+                <div class="layui-input-block">
+                	<input id="cfmPassword" name="password" type="password" class="layui-input" maxlength="255" />
+                </div>
+            </div>
+             <div class="layui-form-item">
+            	<label class="layui-form-label">使用期限</label>
+                <div class="layui-input-inline">
+                	<input id="sdate" name="sdate" v-bind:value="user.useStartDate" class="layui-input" readonly maxlength="10" />
+                </div>
+                <div class="layui-form-mid layui-word-aux">到</div>
+                <div class="layui-input-inline">
+                	<input id="edate" name="edate" v-bind:value="user.useEndDate" class="layui-input" readonly max="10" />
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-block">
+                	<input type="radio" name="status" value="1" title="正常" /><input type="radio" name="status" value="2" title="禁用" />
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="storeListPanel" style="display:none;">
+    	<form id="storeListFrm">
+        	<input type="hidden" name="userId" value="" />
+        	<table class="layui-table" lay-size="sm" style="width:98%; margin:10px auto;">                        	
+                <thead><th width="50"></th><th>案场名称</th></thead>
+                <tbody>
+                    <template v-for="item in list">
+                        <tr>
+                            <td class="text-right">                                            	
+                                <a href="javascript:void(0);" v-if="item.childStoreList.length > 0">
+                                    <i class="dg-icon up">&#xe791;</i>
+                                </a>
+                                <input type="checkbox" name="storeItem" v-bind:value="item.store.id" lay-ignore />
+                            </td>
+                            <td v-text="item.store.name"></td>
+                        </tr>
+                        <tr v-for="childItem in item.childStoreList" v-bind:data="item.store.id">
+                            <td class="text-right"><input type="checkbox" name="storeItem" v-bind:value="childItem.id" lay-ignore /></td>
+                            <td v-html="'&nbsp;&nbsp;∟' + childItem.name"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</html>
+
+<div th:include="/common/javascript :: loadJS"></div>
+<script type="text/javascript">
+	var module = "/user";
+	var layer, form;
+	
+	var userData = {
+		user: {} // 新增或修改数据
+	};
+	var editUserVue = new Vue({
+		el: '#addFrm'
+		,data: userData
+	});
+	
+	var storeListVue = new Vue({
+		el: '#storeListPanel'
+		,data: {
+			list: []
+		}
+	});
+	
+	var listVue = new Vue({
+		el: '#listFrm'
+		,data: {
+			list: []
+		}
+		,methods:{
+			doAdd: function(){
+				$("#addFrm")[0].reset();
+				$("#id").val("");
+				optPanel();
+			}
+			,doLinkStore: function(uid) {
+				$("#storeListPanel").find("input[name=userId]").val(uid);
+				var layerIdx = layer.open({
+					type: 1,
+					title: '案场列表',
+					area: ['500px', '460px'],
+					shade: 0.1,
+					btn: ['保存', '取消'],
+					btnAlign: 'c',
+					content: $("#storeListPanel"),
+					success:function(){
+						$(":checkbox[name=storeItem]").prop("checked", false);
+						var param = {userId: uid};
+						dg.ajaxRequest(module + "/user_store_list", param, function(res){
+							$.each(res.data, function(idx, sd){
+								$(":checkbox[name=storeItem][value='"+ sd.storeId +"']").prop("checked", true);
+							});
+						});
+					},
+					yes: function(index, layero) {
+						var params = $("#storeListFrm").serializeArray();
+						dg.ajaxRequest(module + "/save_user_store", params, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								layer.close(layerIdx);
+								list();
+							}
+						});
+					}
+				});	
+			}
+			,doResetPwd: function(id) {
+				var resetIndx = layer.confirm(
+					"确定要重置密码吗？",
+					{btn:["确定", "取消"]},
+					function(){
+						layer.close(resetIndx);
+						var param = {id: id};
+						dg.ajaxRequest(module + "/reset_password", param, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								list();
+							}				
+						});
+					}
+				);
+			}
+			,doEdit: function(id){
+				$("#id").val(id);
+				optPanel();				
+			}
+			,doDelete: function(id){
+				var delIndx = layer.confirm(
+					"确定要删除吗？",
+					{btn:["确定", "取消"]},
+					function(){
+						layer.close(delIndx);
+						var param = {id: id};
+						dg.ajaxRequest(module + "/delete", param, function(res){
+							var status = res.status;
+							if(isNotNull(status) && status == "10000") {
+								list();
+							}				
+						});
+					}
+				);
+			}
+		}
+	});
+	
+	layui.use(['layer', 'form', 'laydate'], function(){
+		layer = layui.layer;
+		form = layui.form;
+		var laydate = layui.laydate;
+		laydate.render({
+			elem: '#sdate',
+			min: '2017-1-1',
+			theme: '#009688'
+		});
+		laydate.render({
+			elem: '#edate',
+			min: '2017-1-1',
+			theme: '#009688'
+		});
+		// 加载列表
+		list();	
+		// 加载系统菜单
+		dg.ajaxRequest(module + "/role_list", null, function(res){
+			var html = '<option value="">~ 请选择 ~</option>';
+			$.each(res.data, function(idx, role) {
+				html += '<option value="' + role.id + '">' + role.name + '</option>';
+			});
+			$("#roleId").html(html);
+		});
+		// 加载案场列表
+		dg.ajaxRequest(module + "/store_list", null, function(res){
+			storeListVue.$data.list = res.data;
+		});	
+	});
+	
+	function optPanel() {
+		var userId = $("#id").val();
+		var layerIdx = layer.open({
+			type: 1,
+			title: (userId != '' ? '编辑' : '新增') + '用户',
+			area: ['580px', '450px'],
+			shade: 0.1,
+			btn: ['保存', '取消'],
+			btnAlign: 'c',
+			content: $("#addPanel"),
+			success:function(){
+				$(":radio[name=status][value='1']").prop("checked", true);
+				// 编辑数据
+				if(userId != '') {
+					var param = {id: userId};
+					dg.ajaxRequest(module + "/detail", param, function(res){
+						var user = res.data;
+						if(!isNotNull(user)) {
+							return;	
+						}
+						userData.user = user;
+						var sdate = user.useStartDate;
+						var edate = user.useEndDate;
+						if(sdate != null && sdate != '') {
+							user.useStartDate = sdate.substring(0, 10);	
+						}
+						if(edate != null && edate != '') {
+							user.useEndDate = edate.substring(0, 10);	
+						}
+						$("#roleId").val(user.roleId);
+						$(":radio[name=status][value='" + user.status + "']").prop("checked", true);
+						form.render();
+					});
+				}
+				form.render();			
+			},
+			yes: function(index, layero) {
+				if($("#roleId").val() == "") {
+					layer.msg("角色名称不能为空！");
+					return;	
+				}
+				if($("#username").val() == "") {
+					layer.msg("用户名不能为空！");
+					$("#username").focus();
+					return;	
+				}
+				if(userId == '') {
+					if($("#password").val() == "") {
+						layer.msg("密码不能为空！");
+						$("#password").focus();
+						return;	
+					}
+				}
+				if($("#password").val() != '' && $("#password").val().length < 6) {
+					layer.msg("密码长度必须6位以上！");
+					$("#password").focus();
+					return;	
+				}
+				if($("#password").val() != $("#cfmPassword").val()) {
+					layer.msg("两次密码不一致！");
+					$("#cfmPassword").focus();
+					return;	
+				}
+				if( ($("#sdate").val() != "" && $("#edate").val() == "") || $("#sdate").val() == "" && $("#edate").val() != "") {
+					layer.msg("使用期限不完整！");
+					return;	
+				}
+				var params = $("#addFrm").serializeArray();
+				dg.ajaxRequest(module + "/save", params, function(res){
+					var status = res.status;
+					if(isNotNull(status) && status == "10000") {
+						list();
+						layer.close(layerIdx);
+					}
+				});
+			}
+		});		
+	}
+	
+	// 加载页码和列表
+	function list() {
+		var params = $("#listFrm").serializeArray();
+		dg.ajaxRequest(module + "/list_count", params, function(res){
+			dg.listPage("listPage", res.records, res.pageSize, function(curPage){
+				listPage(curPage);
+			});
+		});
+		listPage(1);
+	}
+	
+	function listPage(curPage) {
+		curPage = (curPage==null || curPage == undefined) ? 1 : curPage;
+		var params = $("#listFrm").serializeArray();
+		params.push({"name" : "currentPage", "value" : curPage});
+		dg.ajaxRequest(module + "/list", params, function(res){
+			listVue.$data.list = res.data;
+		});	
+	}
+</script>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digisold.web.mybatis.dao.CityWeatherMapper">
+  <resultMap id="BaseResultMap" type="com.digisold.web.mybatis.entity.CityWeather">
+    <constructor>
+      <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="city" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="weather" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="ltmp" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="htmp" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pm" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="wtime" javaType="java.util.Date" jdbcType="DATE" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, city, weather, ltmp, htmp, pm, wtime
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from city_weather
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from city_weather
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.digisold.web.mybatis.entity.CityWeather">
+    insert into city_weather (id, city, weather, 
+      ltmp, htmp, pm, wtime)
+    values (#{id,jdbcType=CHAR}, #{city,jdbcType=INTEGER}, #{weather,jdbcType=VARCHAR}, 
+      #{ltmp,jdbcType=VARCHAR}, #{htmp,jdbcType=VARCHAR}, #{pm,jdbcType=VARCHAR}, #{wtime,jdbcType=DATE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.digisold.web.mybatis.entity.CityWeather">
+    insert into city_weather
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="city != null">
+        city,
+      </if>
+      <if test="weather != null">
+        weather,
+      </if>
+      <if test="ltmp != null">
+        ltmp,
+      </if>
+      <if test="htmp != null">
+        htmp,
+      </if>
+      <if test="pm != null">
+        pm,
+      </if>
+      <if test="wtime != null">
+        wtime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="city != null">
+        #{city,jdbcType=INTEGER},
+      </if>
+      <if test="weather != null">
+        #{weather,jdbcType=VARCHAR},
+      </if>
+      <if test="ltmp != null">
+        #{ltmp,jdbcType=VARCHAR},
+      </if>
+      <if test="htmp != null">
+        #{htmp,jdbcType=VARCHAR},
+      </if>
+      <if test="pm != null">
+        #{pm,jdbcType=VARCHAR},
+      </if>
+      <if test="wtime != null">
+        #{wtime,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.digisold.web.mybatis.entity.CityWeather">
+    update city_weather
+    <set>
+      <if test="city != null">
+        city = #{city,jdbcType=INTEGER},
+      </if>
+      <if test="weather != null">
+        weather = #{weather,jdbcType=VARCHAR},
+      </if>
+      <if test="ltmp != null">
+        ltmp = #{ltmp,jdbcType=VARCHAR},
+      </if>
+      <if test="htmp != null">
+        htmp = #{htmp,jdbcType=VARCHAR},
+      </if>
+      <if test="pm != null">
+        pm = #{pm,jdbcType=VARCHAR},
+      </if>
+      <if test="wtime != null">
+        wtime = #{wtime,jdbcType=DATE},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.CityWeather">
+    update city_weather
+    set city = #{city,jdbcType=INTEGER},
+      weather = #{weather,jdbcType=VARCHAR},
+      ltmp = #{ltmp,jdbcType=VARCHAR},
+      htmp = #{htmp,jdbcType=VARCHAR},
+      pm = #{pm,jdbcType=VARCHAR},
+      wtime = #{wtime,jdbcType=DATE}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+</mapper>
