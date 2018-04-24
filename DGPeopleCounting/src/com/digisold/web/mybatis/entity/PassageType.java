@@ -9,6 +9,8 @@ public class PassageType {
 
     private String name;
 
+    private Integer isMain;
+
     private String creator;
 
     private Date createDate;
@@ -17,10 +19,11 @@ public class PassageType {
 
     private Date updateDate;
 
-    public PassageType(Integer id, String storeId, String name, String creator, Date createDate, String updater, Date updateDate) {
+    public PassageType(Integer id, String storeId, String name, Integer isMain, String creator, Date createDate, String updater, Date updateDate) {
         this.id = id;
         this.storeId = storeId;
         this.name = name;
+        this.isMain = isMain;
         this.creator = creator;
         this.createDate = createDate;
         this.updater = updater;
@@ -53,6 +56,14 @@ public class PassageType {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getIsMain() {
+        return isMain;
+    }
+
+    public void setIsMain(Integer isMain) {
+        this.isMain = isMain;
     }
 
     public String getCreator() {

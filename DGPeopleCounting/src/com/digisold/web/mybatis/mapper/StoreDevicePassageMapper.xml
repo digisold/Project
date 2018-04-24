@@ -104,8 +104,9 @@
   	select count(t.id) from store_device_passage t
 	  inner join store_device t2 on t.store_device_id = t2.id
 	  inner join device t3 on t2.device_id = t3.id
-	  inner join store t4 on t2.store_id = t4.id
+	  inner join store t4 on t2.store_id = t4.id	  	  
 	  inner join passage t5 on t.passage_id = t5.id
+	  inner join passage_type t6 on t6.id = t5.passage_type
   	<where>
   		<if test="storeId != null and storeId != ''">
 	  		and t4.id = #{storeId}
@@ -117,13 +118,14 @@
   </select>
   
   <select id="passageDeviceList" resultType="com.digisold.web.manage.system.vo.PassageDeviceListVo" parameterType="com.digisold.web.manage.system.model.PassageDeviceListModel">
-  	select t.id, t4.name as storeName, t5.type, t5.name, t3.code, t3.ip, t.status, t.data_reverse,
+  	select t.id, t4.name as storeName, t6.name as passsageType, t5.name, t3.code, t3.ip, t.status, t.data_reverse,
 		DATE_FORMAT(t3.last_upload_date, '%Y-%m-%d  %H:%i') as lastUploadDate
 	from store_device_passage t
 	  inner join store_device t2 on t.store_device_id = t2.id
 	  inner join device t3 on t2.device_id = t3.id
-	  inner join store t4 on t2.store_id = t4.id
+	  inner join store t4 on t2.store_id = t4.id	  	  
 	  inner join passage t5 on t.passage_id = t5.id
+	  inner join passage_type t6 on t6.id = t5.passage_type
   	<where>
   		<if test="storeId != null and storeId != ''">
 	  		and t4.id = #{storeId}
@@ -132,7 +134,7 @@
 	  		and t5.id = #{passageId}
 	  	</if>
   	</where>
-  	order by t4.id, t5.id asc
+  	order by t4.id, t6.id asc
   	limit #{pageIndex}, #{pageSize}
   </select>
 </mapper>

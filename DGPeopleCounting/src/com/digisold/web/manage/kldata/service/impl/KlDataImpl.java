@@ -41,9 +41,7 @@ public class KlDataImpl implements KlDataIfc {
 		String[] xAxis = null; // X坐标轴值
 		long[] enterArray = null;
 		long[] exitArray = null;
-		int x_idx = 0;
-		int en_idx = 0;
-		int ex_idx = 0;
+		long[] stayArray = null;
 		long totalEnter = 0;
 		long totalExit = 0;
 
@@ -59,22 +57,23 @@ public class KlDataImpl implements KlDataIfc {
 			xAxis = new String[arraySize];
 			enterArray = new long[arraySize];
 			exitArray = new long[arraySize];
-			x_idx = 0;
-			en_idx = 0;
-			ex_idx = 0;
+			stayArray = new long[arraySize];
+			int idx = 0;
+
 			for (int i = business_start; i <= business_end; i++) {
-				xAxis[x_idx++] = i + ":00";
-				en_idx += 1;
-				ex_idx += 1;
-				enterArray[en_idx - 1] = 0;
-				exitArray[ex_idx - 1] = 0;
+				idx += 1;
+				xAxis[idx - 1] = i + ":00";
+				enterArray[idx - 1] = 0;
+				exitArray[idx - 1] = 0;
+				stayArray[idx - 1] = 0;
 				for (KlDataListVo kldata : kldataList) {
 					String date = kldata.getDate();
 					if (i == Integer.valueOf(date)) {
 						totalEnter += kldata.getEnters();
 						totalExit += kldata.getExits();
-						enterArray[en_idx - 1] = kldata.getEnters();
-						exitArray[ex_idx - 1] = kldata.getExits();
+						enterArray[idx - 1] = kldata.getEnters();
+						exitArray[idx - 1] = kldata.getExits();
+						stayArray[idx - 1] = (kldata.getEnters() - kldata.getExits());
 						break;
 					}
 				}
@@ -184,6 +183,9 @@ public class KlDataImpl implements KlDataIfc {
 		if (exitArray != null) {
 			map.put("exitArray", exitArray);
 			map.put("totalExit", totalExit);
+		}
+		if (stayArray != null) {
+			map.put("stayArray", stayArray);
 		}
 		return map;
 	}

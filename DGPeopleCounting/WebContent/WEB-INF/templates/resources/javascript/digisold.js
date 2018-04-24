@@ -190,11 +190,11 @@ var echart_theme={color:["#2ec7c9","#b6a2de","#5ab1ef","#ffb980","#d87a80","#8d9
 
 function settingChart(chartDom, title, legendArray, xAxisArray, seriesArray, isShowDataZoom) {
 	var chart_series = [];
-	$.each(seriesArray, function(idx, s){
+	$.each(seriesArray, function(idx, series){
 		var item = {
 			name: legendArray[idx],
-			type:'bar',
-			data: s.data,
+			type: series.chartType,
+			data: series.data,
 			markPoint : {
 				data : [
 					{type : 'max', name: '最大值'},

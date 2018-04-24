@@ -21,6 +21,8 @@ public class KlDataListModel {
 	private String edate;
 
 	private String passageId;
+	
+	private Integer isMain;
 
 	public String getStoreId() {
 		return storeId;
@@ -92,5 +94,13 @@ public class KlDataListModel {
 
 	public void setPassageId(String passageId) {
 		this.passageId = passageId;
+	}
+
+	public Integer getIsMain() {
+		return isMain;
+	}
+
+	public void setIsMain(Integer isMain) {
+		this.isMain = isMain;
 	}
 }

@@ -27,4 +27,6 @@ public interface PassageMapper {
 	List<PassageListVo> passageList(PassageListModel listModel);
 
 	List<Map<?, ?>> passageListByStore(String storeId);
+	
+	List<Passage> passageListByType(Integer passageType);
 }

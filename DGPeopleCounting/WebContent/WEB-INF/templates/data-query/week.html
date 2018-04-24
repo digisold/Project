@@ -50,19 +50,30 @@
         </div>
         <!-- END -->
         
-        <div id="weekChart" class="chart-box"></div>
+        <div id="klChart" class="chart-box"></div>
+        <div id="passageChart" class="chart-box" style="height:380px;">
+        	<h1 class="chart-title">通道周客流量数据报表</h1>
+            <div class="layui-tab layui-tab-brief" lay-filter="psChartTabBrief" style="margin-top:0px;">
+              <ul class="layui-tab-title">
+                <li v-for="(item, index) in ptypeList" v-text="item.name" 
+                	:class="index == 0 ? 'layui-this' : ''" :lay-id="item.id"></li>
+              </ul>
+              <div class="layui-tab-content" style="padding:0px;">
+                <div :id="'_' + item.id" v-for="(item, index) in ptypeList" :class="'layui-tab-item ' + (index == 0 ? 'layui-show' : '')"
+                	style="height:300px;"></div>
+              </div>
+            </div> 
+        </div>
 	</body>
 </html>
-<script language="javascript" type="text/javascript" src="../javascript/echarts-all.js"></script>
 <div th:include="/common/javascript :: loadJS"></div>
+<script language="javascript" type="text/javascript" src="../javascript/echarts-all.js"></script>
+<script language="javascript" type="text/javascript" src="../javascript/data-query.js"></script>
 <script type="text/javascript">
-	var module = "/kldata";
-	var layer, form;
-		
-	layui.use(['layer', 'form', 'laydate'], function(){
+	layui.use(['layer','laydate'], function(){
+		var layer, laydate;
 		layer = layui.layer;
-		form = layui.form;
-		var laydate = layui.laydate;
+		laydate = layui.laydate;
 		laydate.render({
 			elem: '#edate',
 			min: '2017-1-1',
@@ -81,27 +92,5 @@
 				initChart();
 			}
 		});
-		form.on('select(store)', function(obj){
-			initChart();
-		});
-		initChart();
 	});
-	
-	function initChart() {
-		var weekChart = document.getElementById("weekChart");
-		var param = $("#listFrm").serializeArray();
-		dg.ajaxRequest(module + "/activityList", param, function(res){
-			var act = isNotNull(res.data) ? res.data.name : '-';
-			$("#activityLabel").html(act);
-			$("#activityLabel").attr("title", act);
-		});
-		dg.ajaxRequest(module + "/getKlDataList", param, function(res){
-			var data = res.data;
-			if(!isNotNull(data)) {
-				return;	
-			}
-			$("#totalKL").html(data.totalEnter);
-			settingChart(weekChart, "周客流量数据报表", ['客流量'], data.xAxis, [{data: data.enterArray}], false);
-		});	
-	}
 </script>

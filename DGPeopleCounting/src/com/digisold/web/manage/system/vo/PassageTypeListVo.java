@@ -1,24 +1,22 @@
 package com.digisold.web.manage.system.vo;
 
-public class PassageListVo {
+public class PassageTypeListVo {
 
-	private String id; // 主键ID
-	
-	private String storeId; // 案场ID
+	private Integer id; // 主键ID
 
 	private String storeName; // 案场名称
 
-	private String name; // 通道名称
-
-	private String typeName; // 通道类型
+	private String name; // 类型名称
+	
+	private Integer isMain; // 是否主通道
 
 	private String createDate; // 创建时间
 
-	public String getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -38,14 +36,6 @@ public class PassageListVo {
 		this.name = name;
 	}
 
-	public String getTypeName() {
-		return typeName;
-	}
-
-	public void setTypeName(String typeName) {
-		this.typeName = typeName;
-	}
-
 	public String getCreateDate() {
 		return createDate;
 	}
@@ -54,12 +44,12 @@ public class PassageListVo {
 		this.createDate = createDate;
 	}
 
-	public String getStoreId() {
-		return storeId;
+	public Integer getIsMain() {
+		return isMain;
 	}
 
-	public void setStoreId(String storeId) {
-		this.storeId = storeId;
+	public void setIsMain(Integer isMain) {
+		this.isMain = isMain;
 	}
 
 }

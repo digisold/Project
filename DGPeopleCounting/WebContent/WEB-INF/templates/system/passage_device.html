@@ -38,7 +38,7 @@
                 <tbody>
                 	<tr v-for="item in list">
                     	<td v-text="item.storeName"></td>
-                        <td v-text="item.type == 1 ? '主出入口' : item.type == 2 ? '楼层' : item.type == 3 ? '电梯' : '其他'"></td>
+                        <td v-text="item.passageType"></td>
                         <td v-text="item.name"></td>
                         <td v-text="item.code"></td>
                         <td v-text="item.ip"></td>

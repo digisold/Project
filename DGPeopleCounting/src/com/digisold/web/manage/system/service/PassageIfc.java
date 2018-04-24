@@ -23,4 +23,6 @@ public interface PassageIfc {
 	public List<PassageListVo> passageList(PassageListModel listModel);
 
 	public List<Map<?, ?>> passageListByStore(String storeId);
+	
+	public List<Passage> passageListByType(Integer passageType);
 }

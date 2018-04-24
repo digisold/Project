@@ -5,7 +5,7 @@
     <constructor>
       <idArg column="id" javaType="java.lang.String" jdbcType="CHAR" />
       <arg column="store_id" javaType="java.lang.String" jdbcType="CHAR" />
-      <arg column="type" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="passage_type" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="creator" javaType="java.lang.String" jdbcType="CHAR" />
       <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -14,7 +14,7 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List">
-    id, store_id, type, name, creator, create_date, updater, update_date
+    id, store_id, passage_type, name, creator, create_date, updater, update_date
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
@@ -28,10 +28,10 @@
 	where t.id = #{id,jdbcType=CHAR}
   </delete>
   <insert id="insert" parameterType="com.digisold.web.mybatis.entity.Passage">
-    insert into passage (id, store_id, type, 
+    insert into passage (id, store_id, passage_type, 
       name, creator, create_date, 
       updater, update_date)
-    values (#{id,jdbcType=CHAR}, #{storeId,jdbcType=CHAR}, #{type,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=CHAR}, #{storeId,jdbcType=CHAR}, #{passageType,jdbcType=INTEGER}, 
       #{name,jdbcType=VARCHAR}, #{creator,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, 
       #{updater,jdbcType=CHAR}, #{updateDate,jdbcType=TIMESTAMP})
   </insert>
@@ -44,8 +44,8 @@
       <if test="storeId != null">
         store_id,
       </if>
-      <if test="type != null">
-        type,
+      <if test="passageType != null">
+        passage_type,
       </if>
       <if test="name != null">
         name,
@@ -70,8 +70,8 @@
       <if test="storeId != null">
         #{storeId,jdbcType=CHAR},
       </if>
-      <if test="type != null">
-        #{type,jdbcType=INTEGER},
+      <if test="passageType != null">
+        #{passageType,jdbcType=INTEGER},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -96,8 +96,8 @@
       <if test="storeId != null">
         store_id = #{storeId,jdbcType=CHAR},
       </if>
-      <if test="type != null">
-        type = #{type,jdbcType=INTEGER},
+      <if test="passageType != null">
+        passage_type = #{passageType,jdbcType=INTEGER},
       </if>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
@@ -120,7 +120,7 @@
   <update id="updateByPrimaryKey" parameterType="com.digisold.web.mybatis.entity.Passage">
     update passage
     set store_id = #{storeId,jdbcType=CHAR},
-      type = #{type,jdbcType=INTEGER},
+      passage_type = #{passageType,jdbcType=INTEGER},
       name = #{name,jdbcType=VARCHAR},
       creator = #{creator,jdbcType=CHAR},
       create_date = #{createDate,jdbcType=TIMESTAMP},
@@ -140,8 +140,8 @@
 	  	<if test="storeId != null and storeId != ''">
 	  		and t.store_id = #{storeId}
 	  	</if>
-	  	<if test="type != null and type != ''">
-	  		and t.type = #{type}
+	  	<if test="passageType != null and passageType > 0">
+	  		and t.passage_type = #{passageType}
 	  	</if>
 	  	<if test="name != null and name != ''">
 	  		and t.name = #{name}
@@ -150,7 +150,7 @@
   </select>
   
   <select id="countPassageList" resultType="java.lang.Long" parameterType="com.digisold.web.manage.system.model.PassageListModel">
-  	select count(t.id) from passage t inner join store t2 on t.store_id = t2.id
+  	select count(t.id) from passage t inner join store t2 on t.store_id = t2.id inner join passage_type t3 on t.passage_type = t3.id
   	<where>
   		<if test="storeId != null and storeId != ''">
   			and t2.id = #{storeId}
@@ -159,20 +159,27 @@
   </select>
   
   <select id="passageList" resultType="com.digisold.web.manage.system.vo.PassageListVo" parameterType="com.digisold.web.manage.system.model.PassageListModel">
-  	select t.id, t2.name as storeName, t.type, t.name, DATE_FORMAT(t.create_date, '%Y-%m-%d  %H:%i') as createDate
-  	from passage t inner join store t2 on t.store_id = t2.id
+  	select t.id, t2.id as storeId, t2.name as storeName, t3.name as typeName, t.name, DATE_FORMAT(t.create_date, '%Y-%m-%d  %H:%i') as createDate
+  	from passage t inner join store t2 on t.store_id = t2.id inner join passage_type t3 on t.passage_type = t3.id
   	<where>
   		<if test="storeId != null and storeId != ''">
   			and t2.id = #{storeId}
   		</if>
   	</where>
-  	order by t2.id, t.type asc
+  	order by t2.id, t.passage_type asc
   	limit #{pageIndex}, #{pageSize}
   </select>
   
   <select id="passageListByStore" resultType="java.util.Map">
-  	select t.id, t.type, t.name from passage t inner join store t2 on t.store_id = t2.id
+  	select t.id, t3.name as passageType, t.name 
+  		from passage t 
+  		inner join store t2 on t.store_id = t2.id
+  		inner join passage_type t3 on t.passage_type = t3.id
   		where t2.id = #{storeId}
-  		order by t.type, t.name asc
+  		order by t.passage_type, t.name asc
+  </select>
+  
+  <select id="passageListByType" resultType="com.digisold.web.mybatis.entity.Passage">
+  	select t.id, t.name from passage t where t.passage_type = #{passageType}
   </select>
 </mapper>

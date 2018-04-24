@@ -27,11 +27,15 @@
 		inner join device t2 on t.device_id = t2.id 
 		inner join store_device t3 on t3.device_id = t2.id
 		inner join store t4 on t4.id = t3.store_id
-		inner join passage t5 on t5.store_id = t4.id and t5.type = 1
-		inner join store_device_passage t6 on t6.passage_id = t5.id and t6.store_device_id = t3.id 
+		inner join passage t5 on t5.store_id = t4.id
+		inner join passage_type t6 on t6.id	= t5.passage_type	
+		inner join store_device_passage t7 on t7.passage_id = t5.id and t7.store_device_id = t3.id
 	where t.start_date between #{startDate} and #{endDate}
 	<if test="passageId != null and passageId != ''">
 		and t5.id = #{passageId}
+	</if>
+	<if test="isMain != null and isMain > 0">
+		and t6.is_main = #{isMain}
 	</if>
 	group by 1
   </select>

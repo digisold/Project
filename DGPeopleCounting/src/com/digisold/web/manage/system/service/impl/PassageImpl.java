@@ -53,4 +53,8 @@ public class PassageImpl implements PassageIfc {
 	public List<Map<?, ?>> passageListByStore(String storeId) {
 		return passageMapper.passageListByStore(storeId);
 	}
+
+	public List<Passage> passageListByType(Integer passageType) {
+		return passageMapper.passageListByType(passageType);
+	}
 }

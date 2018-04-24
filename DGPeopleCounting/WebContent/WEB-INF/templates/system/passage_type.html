@@ -6,9 +6,9 @@
         <form id="listFrm" class="layui-form layui-form-pane">
         	<blockquote class="layui-elem-quote list-blockquote">
                 <div class="clearfix">
-                    <div style="float:left;">案场通道列表</div>
+                    <div style="float:left;">案场通道类型列表</div>
                     <div style="float:right;">
-                    	<button type="button" class="layui-btn sm" v-on:click="doAdd()"><i class="layui-icon">&#xe654;</i>新增案场通道</button>
+                    	<button type="button" class="layui-btn sm" v-on:click="doAdd()"><i class="layui-icon">&#xe654;</i>新增案场通道类型</button>
                     </div>
                 </div>
             </blockquote>
@@ -23,8 +23,8 @@
             <table id="listTab" class="layui-table"  style="margin-top:0px;">
                 <thead>
                     <th width="200">案场名称</th>
-                    <th width="180">通道名称</th>
-                    <th width="120">通道类型</th>
+                    <th width="180">通道类型名称</th>
+                    <th width="100">是否主通道</th>
                     <th width="120">创建时间</th>
                     <th width="150" style="text-align:center;">操作</th>
                 </thead>
@@ -32,13 +32,11 @@
                 	<tr v-for="item in list">
                     	<td v-text="item.storeName"></td>
                         <td v-text="item.name"></td>
-                        <td v-text="item.typeName"></td>
+                        <td v-text="item.isMain == 1 ? '是' : '否'"></td>
                         <td v-text="item.createDate"></td>
                         <td class="text-center">
                         	<div class="layui-btn-group">
-                            	<button type="button" class="layui-btn" v-on:click="doEdit(item.id, item.storeId)">
-                                	<i class="layui-icon">&#xe642;</i>编辑
-                                </button>
+                            	<button type="button" class="layui-btn" v-on:click="doEdit(item.id)"><i class="layui-icon">&#xe642;</i>编辑</button>
 								<button type="button" class="layui-btn" v-on:click="doDelete(item.id)"><i class="layui-icon">&#xe640;</i>删除</button>
                             </div>
                         </td>
@@ -50,23 +48,24 @@
 	</body>
     <div id="addPanel" style="display:none;">
         <form id="addFrm" class="layui-form layui-form-pane">
-        	<input id="id" name="id" v-bind:value="passage.id" type="hidden" />
+        	<input id="id" name="id" v-bind:value="passageType.id" type="hidden" />
             <div class="layui-form-item">
             	<label class="layui-form-label">案场名称</label>
                 <div class="layui-input-block" style="z-index:10000;">
-                	<select id="storeId" name="storeId" lay-filter="store2" class="storeItems"></select>
+                	<select id="storeId" name="storeId" class="storeItems"></select>
                 </div>
             </div>
             <div class="layui-form-item">
-            	<label class="layui-form-label">通道类型</label>
-                <div class="layui-input-block" style="z-index:9999;">
-                	<select id="passageType" name="passageType"></select>
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">通道名称</label>
+                <label class="layui-form-label">类型名称</label>
                 <div class="layui-input-block">
-                	<input id="name" name="name" type="text" v-bind:value="passage.name" class="layui-input" maxlength="30" />
+                	<input id="name" name="name" type="text" v-bind:value="passageType.name" class="layui-input" maxlength="30" />
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">主出入口</label>
+                <div class="layui-input-block">
+                	<input type="radio" name="isMain" value="1" title="是" />
+                    <input type="radio" name="isMain" value="2" title="否 " />
                 </div>
             </div>
         </form>
@@ -75,15 +74,15 @@
 
 <div th:include="/common/javascript :: loadJS"></div>
 <script type="text/javascript">
-	var module = "/passage";
+	var module = "/passage_type";
 	var layer, form;
 	
-	var passageData = {
-		passage: {} // 新增或修改数据
+	var passageTypeData = {
+		passageType: {} // 新增或修改数据
 	};
 	var editPassageVue = new Vue({
 		el: '#addFrm'
-		,data: passageData
+		,data: passageTypeData
 	});
 	
 	var listVue = new Vue({
@@ -94,12 +93,12 @@
 		,methods:{
 			doAdd: function(){
 				$("#addFrm")[0].reset();
+				$("input[type=radio][value='1']").prop("checked", true);
 				$("#id").val("");
 				optPanel();
 			}
-			,doEdit: function(id, storeId){
+			,doEdit: function(id){
 				$("#id").val(id);
-				loadPassageType(storeId);
 				optPanel();				
 			}
 			,doDelete: function(id){
@@ -129,33 +128,17 @@
 		form.on("select(store)", function(obj){
 			list();
 		});
-		form.on("select(store2)", function(obj){
-			var storeId = obj.value;
-			loadPassageType(storeId);
-		});
 		
 		// 加载列表
 		list();
 	});
-	
-	function loadPassageType(storeId) {
-		var param = {"storeId" : storeId};
-		dg.ajaxRequest(module + "/passage_type_list", param, function(res){
-			var html = '';
-			$.each(res.data, function(idx, p){
-				html += '<option value="' + p.id + '">'+ p.name +'</option>';
-			});
-			$("#passageType").html(html);
-			form.render();
-		});	
-	}
 	
 	function optPanel() {
 		var pid = $("#id").val();
 		
 		var layerIdx = layer.open({
 			type: 1,
-			title: (pid != '' ? '编辑' : '新增') + '案场通道',
+			title: (pid != '' ? '编辑' : '新增') + '案场通道类型',
 			area: ['600px', '300px'],
 			shade: 0.1,
 			btn: ['保存', '取消'],
@@ -166,13 +149,13 @@
 				if(pid != '') {
 					var param = {id: pid};
 					dg.ajaxRequest(module + "/detail", param, function(res){
-						var passage = res.data;
-						if(!isNotNull(passage)) {
+						var passageType = res.data;
+						if(!isNotNull(passageType)) {
 							return;	
 						}
-						passageData.passage = passage;						
-						$("#storeId").val(passage.storeId);				
-						$("#passageType").val(passage.passageType);
+						passageTypeData.passageType = passageType;
+						$("#storeId").val(passageType.storeId);
+						$("input[type=radio][value='" + passageType.isMain + "']").prop("checked", true);
 						form.render();
 					});
 				}
@@ -184,7 +167,7 @@
 					return;
 				}
 				if($("#name").val() == "") {
-					layer.msg("案场通道名称不能为空！");
+					layer.msg("类型名称不能为空！");
 					$("#name").focus();
 					return;	
 				}

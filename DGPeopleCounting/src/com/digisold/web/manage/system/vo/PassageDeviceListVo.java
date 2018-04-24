@@ -6,7 +6,7 @@ public class PassageDeviceListVo {
 
 	private String storeName; // 案场名称
 
-	private Integer type; // 通道类型
+	private String passsageType; // 通道类型名称
 
 	private String name; // 通道名称
 
@@ -36,12 +36,12 @@ public class PassageDeviceListVo {
 		this.storeName = storeName;
 	}
 
-	public Integer getType() {
-		return type;
+	public String getPasssageType() {
+		return passsageType;
 	}
 
-	public void setType(Integer type) {
-		this.type = type;
+	public void setPasssageType(String passsageType) {
+		this.passsageType = passsageType;
 	}
 
 	public String getName() {

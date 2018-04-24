@@ -1,7 +1,10 @@
 package com.digisold.web.manage.kldata.controller;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -19,6 +22,9 @@ import com.digisold.web.manage.base.BaseController;
 import com.digisold.web.manage.kldata.model.KlDataListModel;
 import com.digisold.web.manage.kldata.service.KlDataIfc;
 import com.digisold.web.manage.system.service.PassageIfc;
+import com.digisold.web.manage.system.service.PassageTypeIfc;
+import com.digisold.web.mybatis.entity.Passage;
+import com.digisold.web.mybatis.entity.PassageType;
 
 @Controller("klDataController")
 @RequestMapping("/kldata")
@@ -30,20 +36,53 @@ public class KlDataController extends BaseController {
 	KlDataIfc kldataService;
 
 	@Autowired
+	PassageTypeIfc passageTypeService;
+
+	@Autowired
 	PassageIfc passageService;
 
-	@RequestMapping(value = "/passageList", method = RequestMethod.POST)
-	@ResponseBody
-	public String storePassageListController(String storeId) {
-		JSONObject result = new JSONObject();
-		try {
-			result.put(DATA, passageService.passageListByStore(storeId));
-		} catch (Exception ex) {
-			result.put(MESSAGE, Constant.OPT_FAIL_MSG);
-			ex.printStackTrace();
-			logger.error("获取案场通道列表出错[KlDataController.storePassageListController()].", ex);
+	@RequestMapping("/date")
+	public String datePage() {
+		setReqAttribute("curDate", ToolUtil.dateFormat("yyyy-MM-dd", new Date()));
+		return "data-query/date";
+	}
+
+	@RequestMapping("/week")
+	public String weekPage() {
+		Date date = new Date();
+		setReqAttribute("endDate", ToolUtil.dateFormat("yyyy-MM-dd", date));
+		Calendar cal = Calendar.getInstance();
+		{
+			cal.add(Calendar.DATE, -6);
 		}
-		return toJSONString(result);
+		setReqAttribute("startDate", ToolUtil.dateFormat("yyyy-MM-dd", cal.getTime()));
+		return "data-query/week";
+	}
+
+	@RequestMapping("/month")
+	public String monthPage() {
+		Date date = new Date();
+		setReqAttribute("curMonth", ToolUtil.dateFormat("yyyy-MM", date));
+		return "data-query/month";
+	}
+
+	@RequestMapping("/year")
+	public String yearPage() {
+		Date date = new Date();
+		setReqAttribute("curYear", ToolUtil.dateFormat("yyyy", date));
+		return "data-query/year";
+	}
+
+	@RequestMapping("/custom")
+	public String customPage() {
+		Date date = new Date();
+		setReqAttribute("endDate", ToolUtil.dateFormat("yyyy-MM-dd", date));
+		Calendar cal = Calendar.getInstance();
+		{
+			cal.add(Calendar.DATE, -14);
+		}
+		setReqAttribute("startDate", ToolUtil.dateFormat("yyyy-MM-dd", cal.getTime()));
+		return "data-query/custom";
 	}
 
 	public KlDataListModel setttingDate(KlDataListModel listModel) {
@@ -89,12 +128,6 @@ public class KlDataController extends BaseController {
 	public String kldataListController(@ModelAttribute KlDataListModel listModel) {
 		JSONObject result = new JSONObject();
 		try {
-			// listModel.setStoreId("ce18a786-3ad4-11e8-90f9-3d1ca403d28f");
-			// listModel.setType(3);
-			// listModel.setSdate("2018-4");
-			// listModel.setPassageId("e99d7c19-3ad4-11e8-90f9-3d1ca403d28f");
-			// listModel.setEdate("2018-04-15");
-
 			Map<String, Object> map = kldataService.klByDate(setttingDate(listModel));
 			result.put(DATA, map);
 		} catch (Exception ex) {
@@ -118,6 +151,47 @@ public class KlDataController extends BaseController {
 			result.put(MESSAGE, Constant.OPT_FAIL_MSG);
 			ex.printStackTrace();
 			logger.error("获取活动明细出错[KlDataController.activityListController()].", ex);
+		}
+		return toJSONString(result);
+	}
+
+	@RequestMapping(value = "/getPassageTypeList", method = RequestMethod.POST)
+	@ResponseBody
+	public String passageTypeListController(@ModelAttribute KlDataListModel listModel) {
+		JSONObject result = new JSONObject();
+		try {
+			String storeId = listModel.getStoreId();
+			List<PassageType> ptypeList = passageTypeService.ptypeListByStore(storeId);
+			result.put(DATA, ptypeList);
+		} catch (Exception ex) {
+			result.put(MESSAGE, Constant.OPT_FAIL_MSG);
+			ex.printStackTrace();
+			logger.error("获取通道类型出错[KlDataController.passageTypeListController()].", ex);
+		}
+		return toJSONString(result);
+	}
+
+	@RequestMapping(value = "/getPassageKlDataList", method = RequestMethod.POST)
+	@ResponseBody
+	public String passageKlDataController(@ModelAttribute KlDataListModel listModel, Integer passageTypeId) {
+		JSONObject result = new JSONObject();
+		try {
+			List<Map<String, Object>> list = new ArrayList<>();
+			listModel = setttingDate(listModel);
+			List<Passage> passageList = passageService.passageListByType(passageTypeId);
+			for (Passage passage : passageList) {
+				Map<String, Object> map = new LinkedHashMap<>();
+				map.put("passage", passage);
+				listModel.setPassageId(passage.getId());
+				Map<String, Object> klMap = kldataService.klByDate(listModel);
+				map.put("passageKl", klMap);
+				list.add(map);
+			}
+			result.put(DATA, list);
+		} catch (Exception ex) {
+			result.put(MESSAGE, Constant.OPT_FAIL_MSG);
+			ex.printStackTrace();
+			logger.error("获取通道客流数据出错[KlDataController.passageKlDataController()].", ex);
 		}
 		return toJSONString(result);
 	}
