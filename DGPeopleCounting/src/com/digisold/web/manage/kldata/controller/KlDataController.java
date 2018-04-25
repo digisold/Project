@@ -92,7 +92,6 @@ public class KlDataController extends BaseController {
 		String sdate = listModel.getSdate();
 		String edate = listModel.getEdate();
 		listModel.setDateformat(dateformat[type - 1]);
-
 		switch (type) {
 		case 1:
 			listModel.setStartDate(ToolUtil.dateParse(dfmtStr, sdate + " 00:00:00"));
@@ -259,6 +258,64 @@ public class KlDataController extends BaseController {
 			result.put(MESSAGE, Constant.OPT_FAIL_MSG);
 			ex.printStackTrace();
 			logger.error("获取多案场对比客流数据出错[KlDataController.locationKlCompareController()].", ex);
+		}
+		return toJSONString(result);
+	}
+
+	@RequestMapping("/time_date")
+	public String timeDatePage() {
+		setReqAttribute("curDate", ToolUtil.dateFormat("yyyy-MM-dd", new Date()));
+		return "time-compare/date";
+	}
+
+	@RequestMapping("/time_week")
+	public String timeWeekPage() {
+		setReqAttribute("curDate", ToolUtil.dateFormat("yyyy-MM-dd", new Date()));
+		return "time-compare/week";
+	}
+
+	@RequestMapping("/time_month")
+	public String timeMonthPage() {
+		Date date = new Date();
+		setReqAttribute("curMonth", ToolUtil.dateFormat("yyyy-MM", date));
+		return "time-compare/month";
+	}
+
+	@RequestMapping("/time_year")
+	public String timeYearPage() {
+		Date date = new Date();
+		setReqAttribute("curYear", ToolUtil.dateFormat("yyyy", date));
+		return "time-compare/year";
+	}
+
+	@RequestMapping(value = "/getTimeCompareKlData", method = RequestMethod.POST)
+	@ResponseBody
+	public String timeKlCompareController(@ModelAttribute KlDataListModel listModel, String[] dateArray) {
+		JSONObject result = new JSONObject();
+		try {
+			Integer type = listModel.getType();
+			List<Map<String, Object>> list = new ArrayList<>();
+			listModel.setIsMain(1);
+			listModel.setCompare(true);
+			for (int i = 0; i < dateArray.length; i++) {
+				String date = dateArray[i];
+				if (type == 2) {
+					String sdate = date.substring(0, date.indexOf("到")).trim();
+					String edate = date.substring(date.indexOf("到") + 1).trim();
+					listModel.setSdate(sdate);
+					listModel.setEdate(edate);
+				} else {
+					listModel.setSdate(date);
+				}
+				listModel = setttingDate(listModel);
+				Map<String, Object> map = kldataService.klByDate(listModel);
+				list.add(map);
+			}
+			result.put(DATA, list);
+		} catch (Exception ex) {
+			result.put(MESSAGE, Constant.OPT_FAIL_MSG);
+			ex.printStackTrace();
+			logger.error("获取多时间对比客流数据出错[KlDataController.timeKlCompareController()].", ex);
 		}
 		return toJSONString(result);
 	}

@@ -174,7 +174,8 @@ dg.listPage=function(elem, count, limt, fn){
 if($(".storeItems").length > 0) {
 	if(isNotNull(window.parent.global_storeList)) {
 		var url = window.location.href;
-		var filter = ['kldata/date', 'kldata/week', 'kldata/month', 'kldata/year', 'kldata/custom'];
+		var filter = ['kldata/date', 'kldata/week', 'kldata/month', 'kldata/year', 'kldata/custom', 
+						'kldata/time_date', 'kldata/time_week', 'kldata/time_month', 'kldata/time_year', 'kldata/time_custom'];
 		var html = '<option value="">~ 请选择 ~</option>';
 		for(var i = 0; i < filter.length; i++) {
 			if(url.indexOf(filter[i]) > 0) {

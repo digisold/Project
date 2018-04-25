@@ -38,7 +38,7 @@ layui.use(['form'], function(){
 		var isExit = false;
 		$.each(storeList, function(idx, item){
 			if(id == item.id) {
-				layer.msg('案场已经在对比列表中，请选择的');
+				layer.msg('案场已经在对比列表中，请重新选择！');
 				isExit = true;
 				return false;
 			}

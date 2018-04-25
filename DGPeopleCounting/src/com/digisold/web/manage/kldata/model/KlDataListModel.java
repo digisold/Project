@@ -26,6 +26,10 @@ public class KlDataListModel {
 	
 	private boolean compare;
 
+	private String compareSdate;
+	
+	private String compareEdate;
+	
 	public String getStoreId() {
 		return storeId;
 	}
@@ -112,5 +116,21 @@ public class KlDataListModel {
 
 	public void setCompare(boolean compare) {
 		this.compare = compare;
+	}
+
+	public String getCompareSdate() {
+		return compareSdate;
+	}
+
+	public void setCompareSdate(String compareSdate) {
+		this.compareSdate = compareSdate;
+	}
+
+	public String getCompareEdate() {
+		return compareEdate;
+	}
+
+	public void setCompareEdate(String compareEdate) {
+		this.compareEdate = compareEdate;
 	}
 }

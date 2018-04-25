@@ -111,6 +111,10 @@ public class KlDataImpl implements KlDataIfc {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(listModel.getStartDate());
 			int maxDate = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+			boolean month_compare = listModel.isCompare();
+			if (month_compare) {
+				maxDate = 31;
+			}
 			xAxis = new String[maxDate];
 			enterArray = new long[maxDate];
 			for (int i = 1; i <= maxDate; i++) {
