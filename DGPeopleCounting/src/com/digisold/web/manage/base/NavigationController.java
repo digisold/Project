@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.digisold.core.servlet.InitSuperUserServlet;
 import com.digisold.core.util.Constant;
 import com.digisold.web.manage.system.service.RoleIfc;
+import com.digisold.web.manage.system.service.StoreIfc;
 import com.digisold.web.mybatis.dao.SystemMenuMapper;
 import com.digisold.web.mybatis.entity.Role;
+import com.digisold.web.mybatis.entity.Store;
 import com.digisold.web.mybatis.entity.SystemMenu;
 import com.digisold.web.mybatis.entity.SystemUser;
 
@@ -24,6 +27,9 @@ public class NavigationController extends BaseController {
 
 	@Autowired
 	private SystemMenuMapper sysMenuMapper;
+	
+	@Autowired
+	StoreIfc storeService;
 
 	@RequestMapping("/login")
 	public String loginPage() {
@@ -42,6 +48,25 @@ public class NavigationController extends BaseController {
 		Role role = roleService.getRoleById(roleId);
 		int[] menus = (int[]) parseJSONObject(role.getSysMenus(), int[].class);
 
+		// 加载案场
+		List<Store> list = new ArrayList<>();
+		boolean isSuperUser = user.getUsername().equalsIgnoreCase(InitSuperUserServlet.username);
+		List<Store> storeList = storeService.storeListByUser(isSuperUser ? null : user.getId());
+		for (Store store : storeList) {
+			String id = store.getId();
+			String parentId = store.getParentId();
+			if (parentId == null || "".equals(parentId)) {
+				list.add(store);
+				for (Store store2 : storeList) {
+					String pid = store2.getParentId();
+					if (pid != null && pid.equalsIgnoreCase(id)) {
+						list.add(store2);
+					}
+				}
+			}
+		}
+		setReqAttribute("storeList", toJSONString(list));
+		
 		// 加载所有MENU
 		final List<SystemMenu> menuList = sysMenuMapper.menuList();
 		for (int i = menuList.size() - 1; i >= 0; i--) {

@@ -301,9 +301,9 @@
 	]]>		
   </update>
   
-  <select id="storeListByUser" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="storeListByUser" resultType="com.digisold.web.mybatis.entity.Store"  parameterType="java.lang.String">
   	select 
-  	<include refid="Base_Column_List" />
+  		t.id, t.name, t.parent_id as parentId
   	from store t
   	<where>
   		<if test="userId != null and userId != ''">

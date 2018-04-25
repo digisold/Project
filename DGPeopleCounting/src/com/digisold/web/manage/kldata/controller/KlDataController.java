@@ -196,4 +196,70 @@ public class KlDataController extends BaseController {
 		return toJSONString(result);
 	}
 
+	@RequestMapping("/location_date")
+	public String locaitonDatePage() {
+		setReqAttribute("curDate", ToolUtil.dateFormat("yyyy-MM-dd", new Date()));
+		return "location-compare/date";
+	}
+
+	@RequestMapping("/location_week")
+	public String locaitonWeekPage() {
+		Date date = new Date();
+		setReqAttribute("endDate", ToolUtil.dateFormat("yyyy-MM-dd", date));
+		Calendar cal = Calendar.getInstance();
+		{
+			cal.add(Calendar.DATE, -6);
+		}
+		setReqAttribute("startDate", ToolUtil.dateFormat("yyyy-MM-dd", cal.getTime()));
+		return "location-compare/week";
+	}
+
+	@RequestMapping("/location_month")
+	public String locaitonMonthPage() {
+		Date date = new Date();
+		setReqAttribute("curMonth", ToolUtil.dateFormat("yyyy-MM", date));
+		return "location-compare/month";
+	}
+
+	@RequestMapping("/location_year")
+	public String locaitonYearPage() {
+		Date date = new Date();
+		setReqAttribute("curYear", ToolUtil.dateFormat("yyyy", date));
+		return "location-compare/year";
+	}
+
+	@RequestMapping("/location_custom")
+	public String locaitonCustomPage() {
+		Date date = new Date();
+		setReqAttribute("endDate", ToolUtil.dateFormat("yyyy-MM-dd", date));
+		Calendar cal = Calendar.getInstance();
+		{
+			cal.add(Calendar.DATE, -14);
+		}
+		setReqAttribute("startDate", ToolUtil.dateFormat("yyyy-MM-dd", cal.getTime()));
+		return "location-compare/custom";
+	}
+
+	@RequestMapping(value = "/getLocationCompareKlData", method = RequestMethod.POST)
+	@ResponseBody
+	public String locationKlCompareController(@ModelAttribute KlDataListModel listModel, String[] storeIdArray) {
+		JSONObject result = new JSONObject();
+		try {
+			List<Map<String, Object>> list = new ArrayList<>();
+			listModel.setIsMain(1);
+			listModel.setCompare(true);
+			listModel = setttingDate(listModel);
+			for (int i = 0; i < storeIdArray.length; i++) {
+				listModel.setStoreId(storeIdArray[i]);
+				Map<String, Object> klMap = kldataService.klByDate(listModel);
+				list.add(klMap);
+			}
+			result.put(DATA, list);
+		} catch (Exception ex) {
+			result.put(MESSAGE, Constant.OPT_FAIL_MSG);
+			ex.printStackTrace();
+			logger.error("获取多案场对比客流数据出错[KlDataController.locationKlCompareController()].", ex);
+		}
+		return toJSONString(result);
+	}
 }

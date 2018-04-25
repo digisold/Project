@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+	<head th:include="/common/head :: loadHead"></head>
+    
+    <body>
+        <form id="listFrm" class="layui-form layui-form-pane">
+        	<input name="type" type="hidden" value="2" />
+        	<div class="layui-form-item" style="margin-bottom:5px;">
+            	<div class="layui-inline">
+                    <label class="layui-form-label">选择案场</label>
+                    <div class="layui-input-block">
+                        <select id="storeId" name="storeId" lay-filter="store" class="storeItems"></select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                	<div class="clearfix store-group" v-for="item in storeList">
+                    	<input name="storeIdArray" type="hidden" v-bind:value="item.id" />
+                        <a href="#" class="store-label"><span v-text="item.name"></span></a>
+                        <a href="#" class="close layui-icon" v-on:click="removeStore(item.id)">&#x1006;</a>
+                    </div>
+                </div>
+             </div>   
+            <div class="layui-form-item">    
+                <div class="layui-inline">
+                    <label class="layui-form-label">时间范围</label>
+                    <div class="layui-input-inline">
+                        <input id="sdate" name="sdate" type="text" th:value="${startDate}" class="layui-input" readonly maxlength="10" />
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">到</div>
+                    <div class="layui-input-inline">
+                        <input id="edate" name="edate" type="text" th:value="${endDate}" class="layui-input" readonly maxlength="10" />
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button id="searchBtn" type="button" class="layui-btn" onclick="initChart()"><i class="layui-icon">&#xe615;</i>查询</button>
+                </div>  
+            </div>
+            <!-- data total -->
+            <div class="rpt-box">
+                <div class="box blue" v-for="item in storeList">
+                    <div class="clearfix">
+                        <div style="float:left"><i class="dg-icon">&#xe629;</i></div>
+                        <div style="float:right; text-align:right;">
+                            <div class="data" id="totalKL" v-text="item.totalKl"></div>
+                            <div class="label" style="font-size:12pt;" v-text="item.name"></div>
+                        </div>
+                    </div>
+               </div>
+            </div>
+            <!-- END -->
+        </form>
+        <!-- data total -->
+        
+        <div id="klChart" class="chart-box" style="display:none;"></div>
+	</body>
+</html>
+<div th:include="/common/javascript :: loadJS"></div>
+<script language="javascript" type="text/javascript" src="../javascript/echarts-all.js"></script>
+<script language="javascript" type="text/javascript" src="../javascript/location-compare.js"></script>
+<script type="text/javascript">
+	layui.use(['layer','laydate'], function(){
+		var layer, laydate;
+		layer = layui.layer;
+		laydate = layui.laydate;
+		laydate.render({
+			elem: '#edate',
+			min: '2017-1-1',
+			max: $('#edate').val(),
+			theme: date_theme,
+			done: function(value, date) {
+				var year = date.year;
+				var month = eval(date.month - 1);
+				var date = date.date;
+				var edate = new Date(year, month, date);
+				edate.setDate(edate.getDate() - 6);
+				year = edate.getFullYear();
+				month = eval(edate.getMonth() + 1);
+				date = edate.getDate();
+				$('#sdate').val(year + '-' + (month < 10 ? '0' : '') + month + '-' + (date < 10 ? '0' : '') + date);
+				initChart();
+			}
+		});
+	});
+</script>

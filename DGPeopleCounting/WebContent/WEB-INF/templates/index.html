@@ -16,6 +16,7 @@
     </head>
 
     <body class="kit-theme">
+    	<input id="storeHidden" type="hidden" th:value="${storeList}" />
     	<div class="layui-layout layui-layout-admin kit-layout-admin">
         <div class="layui-header">
             <div class="layui-logo"><img src="images/logo.png" /></div>
@@ -61,7 +62,7 @@
         </div>
 
         <div class="layui-side layui-bg-black kit-side">
-            <div class="layui-side-scroll">
+            <div class="layui-side-scroll">            	
                 <div class="kit-side-fold" title="侧边伸缩"><i class="dg-icon" style="font-size:16pt; color:#FFF">&#xe647;</i></div>
                 <ul id="left_menu_nav" class="layui-nav layui-nav-tree" lay-filter="kitNavbar" kit-navbar>
                     <li th:pmenu-id="${pmenu.child_menu.parentMenuId}" class="layui-nav-item layui-nav-itemed" th:each="pmenu : ${childMenuList}">
@@ -125,6 +126,11 @@
 			type: 'iframe'
 		}).init();
 	});
+	
+	var global_storeList; // 全局案场列表
+	$(document).ready(function(e) {
+		global_storeList = $.parseJSON($("#storeHidden").val());
+    });
 	
 	// 登出系统
 	function logout() {

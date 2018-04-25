@@ -23,6 +23,8 @@ public class KlDataListModel {
 	private String passageId;
 	
 	private Integer isMain;
+	
+	private boolean compare;
 
 	public String getStoreId() {
 		return storeId;
@@ -102,5 +104,13 @@ public class KlDataListModel {
 
 	public void setIsMain(Integer isMain) {
 		this.isMain = isMain;
+	}
+
+	public boolean isCompare() {
+		return compare;
+	}
+
+	public void setCompare(boolean compare) {
+		this.compare = compare;
 	}
 }

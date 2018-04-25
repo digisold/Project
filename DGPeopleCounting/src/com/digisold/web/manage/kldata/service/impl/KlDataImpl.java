@@ -49,11 +49,17 @@ public class KlDataImpl implements KlDataIfc {
 		Integer type = listModel.getType();
 		switch (type) {
 		case 1: // 日
+			boolean compare = listModel.isCompare();
 			// 案场营业时间
 			int business_start = store.getBusinessStartTime();
 			int business_end = store.getBusinessEndTime();
 			// END
 			int arraySize = (business_end - business_start) + 1;
+			if (compare) {
+				arraySize = 24;
+				business_start = 0;
+				business_end = 23;
+			}
 			xAxis = new String[arraySize];
 			enterArray = new long[arraySize];
 			exitArray = new long[arraySize];
